@@ -1,8 +1,15 @@
 package com.idirtrack.stock_service.model.device;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import lombok.AllArgsConstructor;
@@ -19,12 +26,22 @@ import java.util.Date;
 @AllArgsConstructor
 @Table(name = "device")
 public class Device { 
-
-  @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
   private String IMEI;
-  private Date createdAt; // Changed create_at to createdAt
-  private Status status; // Ensure Status is defined or imported
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "create_at")
+  private Date createdAt;
+
+  @Enumerated(EnumType.STRING)
+  private Status status;
+
+  @ManyToOne
+  @JoinColumn(name = "type_device_id")
+  private DeviceType deviceType;
+
 
 }
