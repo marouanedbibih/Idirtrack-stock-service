@@ -1,0 +1,21 @@
+server:
+  port: ${SPRING_APP_PORT:8080}
+
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:spring-boot-app}
+  datasource:
+    driver-class-name: ${DATASOURCE_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
+    url: ${DATASOURCE_URL:jdbc:mysql://localhost:3306/idirtech_stock?createDatabaseIfNotExist=true&useSSL=false}
+    username: ${DATASOURCE_USERNAME:root}
+    password: ${DATASOURCE_PASSWORD:root@@0603}
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_HIBERNATE_DDL_AUTO:update}
+    show-sql: true
+    database-platform: ${JPA_DATABASE_PLATFORM:org.hibernate.dialect.MySQLDialect}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
