@@ -1,4 +1,4 @@
-package com.idirtrack.stock_service.model.device;
+package com.idirtrack.stock_service.device;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class DeviceType {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-
+  //name of the device type unique
   private String name;
 
   @OneToMany(mappedBy = "deviceType")
