@@ -12,8 +12,9 @@ import lombok.NoArgsConstructor;
 public class DeviceDTO {
 
     private Long id;
-    private Number IMEI;
-    private String status;
+    private String IMEI;
+    private DeviceStatus status;
     private String deviceType;
-  
+    private String remarque;
+      
 }

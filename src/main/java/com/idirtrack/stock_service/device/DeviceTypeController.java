@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.idirtrack.stock_service.basics.BasicResponse;
 import com.idirtrack.stock_service.basics.MessageType;
-import com.idirtrack.stock_service.device.https.DeviceTypeRequeste;
+import com.idirtrack.stock_service.device.https.DeviceTypeRequest;
 
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/stock-api/device-type")
+@RequestMapping("/stock-api")
 public class DeviceTypeController {
   
  @Autowired
@@ -24,7 +24,7 @@ public class DeviceTypeController {
 
     // Save device type
     @PostMapping("/type")
-    public ResponseEntity<BasicResponse> createDeviceType(@Valid @RequestBody DeviceTypeRequeste request, BindingResult bindingResult) {
+    public ResponseEntity<BasicResponse> createDeviceType(@Valid @RequestBody DeviceTypeRequest request, BindingResult bindingResult) {
         try {
             BasicResponse response = deviceTypeService.createDeviceType(request, bindingResult);
             return ResponseEntity.status(response.getStatus()).body(response);

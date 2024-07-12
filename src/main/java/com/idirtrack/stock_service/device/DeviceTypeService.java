@@ -12,7 +12,7 @@ import com.idirtrack.stock_service.basics.BasicException;
 import com.idirtrack.stock_service.basics.BasicResponse;
 import com.idirtrack.stock_service.basics.BasicValidation;
 import com.idirtrack.stock_service.basics.MessageType;
-import com.idirtrack.stock_service.device.https.DeviceTypeRequeste;
+import com.idirtrack.stock_service.device.https.DeviceTypeRequest;
 
 import jakarta.validation.Valid;
 
@@ -24,7 +24,7 @@ public class DeviceTypeService {
     private  DeviceTypeRepository deviceTypeRepository;
 
     // Save device type
-    public BasicResponse createDeviceType(@Valid DeviceTypeRequeste request, BindingResult bindingResult) throws BasicException {
+    public BasicResponse createDeviceType(@Valid DeviceTypeRequest request, BindingResult bindingResult) throws BasicException {
         // Validate the request
         Map<String, String> messagesList = BasicValidation.getValidationsErrors(bindingResult);
         if (!messagesList.isEmpty()) {
@@ -78,7 +78,7 @@ public class DeviceTypeService {
     }
 
     // Transform request DTO to entity
-    private DeviceType transformResponseDTO(DeviceTypeRequeste request) {
+    private DeviceType transformResponseDTO(DeviceTypeRequest request) {
         return DeviceType.builder()
                 .name(request.getName())
                 // Set other fields if necessary

@@ -19,3 +19,12 @@ logging:
   level:
     root: INFO
     org.springframework.web: DEBUG
+  file:
+    path: ${FILE_PATH:src/main/resources/static/log.txt}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true

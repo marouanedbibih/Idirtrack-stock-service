@@ -2,6 +2,8 @@ package com.idirtrack.stock_service.device;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,6 +32,7 @@ public class DeviceType {
   private String name;
 
   @OneToMany(mappedBy = "deviceType")
+  @JsonBackReference //to avoid infinite loop
   private List<Device> devices;
   
 }
