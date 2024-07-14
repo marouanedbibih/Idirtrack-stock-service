@@ -1,19 +1,27 @@
 package com.idirtrack.stock_service.sim;
 
-import com.idirtrack.stock_service.sim.SimStatus;
-import com.idirtrack.stock_service.sim.SimService;
-import com.idirtrack.stock_service.sim.SimDTO;
-import com.idirtrack.stock_service.sim.https.SimRequest;
-import com.idirtrack.stock_service.sim.https.SimUpdateRequest;
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.idirtrack.stock_service.basics.BasicException;
+import com.idirtrack.stock_service.basics.BasicResponse;
+import com.idirtrack.stock_service.sim.https.SimRequest;
+import com.idirtrack.stock_service.sim.https.SimUpdateRequest;
 
 import jakarta.validation.Valid;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/sims")
@@ -24,58 +32,58 @@ public class SimController {
     private SimService simService;
 
     @GetMapping
-    public ResponseEntity<List<SimDTO>> getAllSims() {
-        List<SimDTO> sims = simService.getAllSims();
-        return new ResponseEntity<>(sims, HttpStatus.OK);
+    public ResponseEntity<BasicResponse> getAllSims(@RequestParam(defaultValue = "1") int page,
+                                                    @RequestParam(defaultValue = "5") int size) {
+        BasicResponse response = simService.getAllSims(page, size);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SimDTO> getSimById(@PathVariable Long id) {
-        SimDTO sim = simService.getSimById(id);
-        return new ResponseEntity<>(sim, HttpStatus.OK);
+    public ResponseEntity<BasicResponse> getSimById(@PathVariable Long id) throws BasicException {
+        BasicResponse response = simService.getSimById(id);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @PostMapping
-    public ResponseEntity<SimDTO> createSim(@Valid @RequestBody SimRequest simRequest, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        SimDTO createdSim = simService.createSim(simRequest);
-        return new ResponseEntity<>(createdSim, HttpStatus.CREATED);
+    public ResponseEntity<BasicResponse> createSim(@Valid @RequestBody SimRequest simRequest, BindingResult bindingResult) throws BasicException {
+        BasicResponse response = simService.createSim(simRequest, bindingResult);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SimDTO> updateSim(@PathVariable Long id, @Valid @RequestBody SimUpdateRequest simUpdateRequest, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        SimDTO updatedSim = simService.updateSim(id, simUpdateRequest);
-        return new ResponseEntity<>(updatedSim, HttpStatus.OK);
+    public ResponseEntity<BasicResponse> updateSim(@PathVariable Long id, @Valid @RequestBody SimUpdateRequest simUpdateRequest, BindingResult bindingResult) throws BasicException {
+        BasicResponse response = simService.updateSim(id, simUpdateRequest, bindingResult);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<SimDTO> updateSimStatus(@PathVariable Long id, @RequestParam SimStatus status) {
-        SimDTO updatedSim = simService.updateSimStatus(id, status);
-        return new ResponseEntity<>(updatedSim, HttpStatus.OK);
+    public ResponseEntity<BasicResponse> updateSimStatus(@PathVariable Long id, @RequestParam SimStatus status) throws BasicException {
+        BasicResponse response = simService.updateSimStatus(id, status);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSim(@PathVariable Long id) {
-        simService.deleteSim(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<BasicResponse> deleteSim(@PathVariable Long id) throws BasicException {
+        BasicResponse response = simService.deleteSim(id);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<SimDTO>> searchSims(@RequestParam String query) {
-        List<SimDTO> sims = simService.searchSims(query);
-        return new ResponseEntity<>(sims, HttpStatus.OK);
+    public ResponseEntity<BasicResponse> searchSims(@RequestParam String query,
+                                                    @RequestParam(required = false) String operatorType,
+                                                    @RequestParam(required = false) String status,
+                                                    @RequestParam(required = false) LocalDateTime date,
+                                                    @RequestParam(defaultValue = "1") int page,
+                                                    @RequestParam(defaultValue = "5") int size) {
+        BasicResponse response = simService.searchSims(query, operatorType, status, date, page, size);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @GetMapping("/searchByDate")
-    public ResponseEntity<List<SimDTO>> searchSimsByDate(@RequestParam String startDate, @RequestParam String endDate) {
+    public ResponseEntity<BasicResponse> searchSimsByDate(@RequestParam String startDate, @RequestParam String endDate) {
         LocalDateTime start = LocalDateTime.parse(startDate);
         LocalDateTime end = LocalDateTime.parse(endDate);
-        List<SimDTO> sims = simService.searchSimsByDateRange(start, end);
-        return new ResponseEntity<>(sims, HttpStatus.OK);
+        BasicResponse response = simService.searchSimsByDateRange(start, end);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 }
