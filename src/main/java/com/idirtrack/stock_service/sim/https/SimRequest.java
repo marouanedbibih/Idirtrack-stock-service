@@ -29,8 +29,8 @@ public class SimRequest {
     @Size(max = 18, message = "The CCID must be at most 18 characters")
     private String ccid;
 
-    @NotNull(message = "The Operator Type is required")
-    private String operatorType;
+    @NotNull(message = "The SIM type ID is required")
+    private Long simTypeId;
 
     @NotBlank(message = "The Phone Number is required")
     @Pattern(regexp = "\\d{10,15}", message = "The Phone Number must be between 10 and 15 digits")

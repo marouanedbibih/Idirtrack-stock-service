@@ -1,16 +1,12 @@
 package com.idirtrack.stock_service.sim;
 
-import com.idirtrack.stock_service.basics.BasicException;
-import com.idirtrack.stock_service.basics.BasicResponse;
-import com.idirtrack.stock_service.basics.BasicValidation;
-import com.idirtrack.stock_service.basics.MessageType;
-import com.idirtrack.stock_service.basics.MetaData;
-import com.idirtrack.stock_service.sim.SimRepository;
-import com.idirtrack.stock_service.sim.https.SimRequest;
-import com.idirtrack.stock_service.sim.https.SimUpdateRequest;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,15 +15,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.idirtrack.stock_service.basics.BasicException;
+import com.idirtrack.stock_service.basics.BasicResponse;
+import com.idirtrack.stock_service.basics.BasicValidation;
+import com.idirtrack.stock_service.basics.MessageType;
+import com.idirtrack.stock_service.basics.MetaData;
+import com.idirtrack.stock_service.sim.https.SimRequest;
+import com.idirtrack.stock_service.sim.https.SimUpdateRequest;
+
+import jakarta.persistence.criteria.Predicate;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class SimService {
 
     private final SimRepository simRepository;
+    private final SimTypeRepository simTypeRepository;
 
     // Save SIM
     public BasicResponse createSim(@Valid SimRequest simRequest, BindingResult bindingResult) throws BasicException {
@@ -55,8 +60,25 @@ public class SimService {
                     .build());
         }
 
+        // Check if the SIM type exists
+        SimType simType = simTypeRepository.findById(simRequest.getSimTypeId())
+                .orElseThrow(() -> new BasicException(BasicResponse.builder()
+                        .status(HttpStatus.BAD_REQUEST)
+                        .message("SIM type not found")
+                        .messageType(MessageType.ERROR)
+                        .data(null)
+                        .build()));
+
         // Transform the request to entity
-        Sim sim = transformRequestToEntity(simRequest);
+        Sim sim = Sim.builder()
+                .pin(simRequest.getPin())
+                .puk(simRequest.getPuk())
+                .ccid(simRequest.getCcid())
+                .simType(simType)
+                .phoneNumber(simRequest.getPhoneNumber())
+                .addDate(simRequest.getAddDate())
+                .status(SimStatus.PENDING)
+                .build();
 
         // Save the SIM entity
         simRepository.save(sim);
@@ -96,12 +118,21 @@ public class SimService {
                         .status(HttpStatus.NOT_FOUND)
                         .build()));
 
+        // Check if the SIM type exists
+        SimType simType = simTypeRepository.findById(simUpdateRequest.getSimTypeId())
+                .orElseThrow(() -> new BasicException(BasicResponse.builder()
+                        .status(HttpStatus.BAD_REQUEST)
+                        .message("SIM type not found")
+                        .messageType(MessageType.ERROR)
+                        .data(null)
+                        .build()));
+
         // Update the existing SIM entity
         existingSim.setPin(simUpdateRequest.getPin());
         existingSim.setPuk(simUpdateRequest.getPuk());
         existingSim.setCcid(simUpdateRequest.getCcid());
-        existingSim.setOperatorType(simUpdateRequest.getOperatorType().toUpperCase());
-        existingSim.setStatus(simUpdateRequest.getStatus());
+        existingSim.setSimType(simType);
+        existingSim.setStatus(SimStatus.valueOf(simUpdateRequest.getStatus().toString()));
         existingSim.setPhoneNumber(simUpdateRequest.getPhoneNumber());
         existingSim.setAddDate(simUpdateRequest.getAddDate());
 
@@ -202,7 +233,7 @@ public class SimService {
                 ));
             }
             if (operatorType != null && !operatorType.isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("operatorType"), operatorType.toUpperCase()));
+                predicates.add(criteriaBuilder.equal(root.get("simType").get("type"), operatorType.toUpperCase()));
             }
             if (status != null && !status.isEmpty()) {
                 predicates.add(criteriaBuilder.equal(root.get("status"), SimStatus.valueOf(status)));
@@ -246,7 +277,7 @@ public class SimService {
             return BasicResponse.builder()
                     .data(null)
                     .status(HttpStatus.NOT_FOUND)
-                    .message("No SIMs found")
+                    .message("No SIMs found in the specified date range")
                     .messageType(MessageType.ERROR)
                     .build();
         }
@@ -259,19 +290,6 @@ public class SimService {
                 .build();
     }
 
-    // Transform request to entity
-    private Sim transformRequestToEntity(SimRequest simRequest) {
-        return Sim.builder()
-                .pin(simRequest.getPin())
-                .puk(simRequest.getPuk())
-                .ccid(simRequest.getCcid())
-                .operatorType(simRequest.getOperatorType().toUpperCase())
-                .phoneNumber(simRequest.getPhoneNumber())
-                .addDate(simRequest.getAddDate())
-                .status(SimStatus.PENDING)
-                .build();
-    }
-
     // Transform entity to DTO
     private SimDTO transformEntityToDTO(Sim sim) {
         return SimDTO.builder()
@@ -279,7 +297,7 @@ public class SimService {
                 .pin(sim.getPin())
                 .puk(sim.getPuk())
                 .ccid(sim.getCcid())
-                .operatorType(sim.getOperatorType())
+                .simType(sim.getSimType().getType())
                 .status(sim.getStatus())
                 .phoneNumber(sim.getPhoneNumber())
                 .addDate(sim.getAddDate())
