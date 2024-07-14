@@ -28,8 +28,8 @@ public class SimUpdateRequest {
     @Size(max = 18, message = "The CCID must be less than or equal to 18 characters")
     private String ccid;
 
-    @NotNull(message = "The SIM type ID is required")
-    private Long simTypeId;
+    @NotNull(message = "The SIM type by operator name is required")
+    private String simType;
 
     @NotBlank(message = "The phone number is required")
     private String phoneNumber;

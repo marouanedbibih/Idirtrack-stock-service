@@ -30,7 +30,7 @@ public class SimRequest {
     private String ccid;
 
     @NotNull(message = "The SIM type ID is required")
-    private Long simTypeId;
+    private String simType;
 
     @NotBlank(message = "The Phone Number is required")
     @Pattern(regexp = "\\d{10,15}", message = "The Phone Number must be between 10 and 15 digits")

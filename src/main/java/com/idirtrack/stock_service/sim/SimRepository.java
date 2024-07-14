@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface SimRepository extends JpaRepository<Sim, Long>, JpaSpecificationExecutor<Sim> {
 
-    @Query("SELECT s FROM Sim s WHERE s.pin LIKE %:query% OR s.puk LIKE %:query% OR s.ccid LIKE %:query% OR s.operatorType LIKE %:query% OR s.status LIKE %:query% OR s.phoneNumber LIKE %:query%")
+    @Query("SELECT s FROM Sim s WHERE s.pin LIKE %:query% OR s.puk LIKE %:query% OR s.ccid LIKE %:query% OR s.simType.type LIKE %:query% OR s.status LIKE %:query% OR s.phoneNumber LIKE %:query%")
     List<Sim> findByAnyFieldContaining(@Param("query") String query);
 
     @Query("SELECT s FROM Sim s WHERE s.addDate BETWEEN :startDate AND :endDate")
