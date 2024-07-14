@@ -14,12 +14,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "sim_type")
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Entity
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "sim_type")
 public class SimType {
 
     @Id
@@ -30,5 +30,5 @@ public class SimType {
     private String type;
 
     @OneToMany(mappedBy = "simType")
-    private List<Sim> sims;
+    private List<Sim> sims;  // Ensure this matches the property name in Sim.java
 }
