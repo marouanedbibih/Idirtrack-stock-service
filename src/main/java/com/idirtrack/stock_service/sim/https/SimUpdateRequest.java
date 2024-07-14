@@ -24,11 +24,11 @@ public class SimUpdateRequest {
     private String pin;
 
     @NotBlank(message = "The PUK is required")
-    @Size(min = 8, max = 12, message = "The PUK must be between 8 and 12 characters")
+    @Pattern(regexp = "\\d{8}", message = "The PUK must be exactly 8 digits")
     private String puk;
 
     @NotBlank(message = "The CCID is required")
-    @Pattern(regexp = "\\d{19,20}", message = "The CCID must be between 19 and 20 digits")
+    @Size(max = 18, message = "The CCID must be at most 18 characters")
     private String ccid;
 
     @NotNull(message = "The Operator Type is required")

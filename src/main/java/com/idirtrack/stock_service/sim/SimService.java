@@ -6,8 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.idirtrack.stock_service.sim.SimRepository;
-import com.idirtrack.stock_service.sim.SimDTO;
+
 import com.idirtrack.stock_service.sim.https.SimRequest;
 import com.idirtrack.stock_service.sim.https.SimUpdateRequest;
 
@@ -37,7 +36,7 @@ public class SimService {
         existingSim.setPin(simUpdateRequest.getPin());
         existingSim.setPuk(simUpdateRequest.getPuk());
         existingSim.setCcid(simUpdateRequest.getCcid());
-        existingSim.setOperatorType(simUpdateRequest.getOperatorType());
+        existingSim.setOperatorType(simUpdateRequest.getOperatorType().toUpperCase());
         existingSim.setStatus(simUpdateRequest.getStatus());
         existingSim.setPhoneNumber(simUpdateRequest.getPhoneNumber());
         existingSim.setAddDate(simUpdateRequest.getAddDate());
@@ -69,7 +68,7 @@ public class SimService {
                 .pin(simRequest.getPin())
                 .puk(simRequest.getPuk())
                 .ccid(simRequest.getCcid())
-                .operatorType(simRequest.getOperatorType())
+                .operatorType(simRequest.getOperatorType().toUpperCase())
                 .phoneNumber(simRequest.getPhoneNumber())
                 .addDate(simRequest.getAddDate())
                 .status(SimStatus.PENDING)
