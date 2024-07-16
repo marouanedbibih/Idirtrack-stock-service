@@ -51,13 +51,22 @@ public class SimService {
 
         // Check if the SIM already exists
         try {
-            ifExists(simRequest.getCcid());
+            if (simRepository.existsByCcid(simRequest.getCcid())) {
+                Map<String, String> messagesList = new HashMap<>();
+                messagesList.put("CCID", "CCID already exists");
+                throw new BasicException(BasicResponse.builder()
+                        .status(HttpStatus.BAD_REQUEST)
+                        .message("CCID already exists")
+                        .messageType(MessageType.ERROR)
+                        .data(messagesList)
+                        .build());
+            }
         } catch (BasicException e) {
             throw new BasicException(BasicResponse.builder()
                     .status(HttpStatus.BAD_REQUEST)
-                    .message("CCID already exists")
+                    .message(e.getMessage())
                     .messageType(MessageType.ERROR)
-                    .data(null)
+                    .data(e.getResponse().getData())
                     .build());
         }
 
@@ -95,20 +104,6 @@ public class SimService {
                 .status(HttpStatus.CREATED)
                 .redirectUrl(null)
                 .build();
-    }
-
-    // Method to check if a SIM with the given CCID already exists
-    private void ifExists(String ccid) throws BasicException {
-        if (simRepository.existsByCcid(ccid)) {
-            Map<String, String> messagesList = new HashMap<>();
-            messagesList.put("CCID", "CCID already exists");
-            throw new BasicException(BasicResponse.builder()
-                    .data(null)
-                    .message("CCID already exists")
-                    .messageType(MessageType.ERROR)
-                    .data(messagesList)
-                    .build());
-        }
     }
 
     // Update SIM
