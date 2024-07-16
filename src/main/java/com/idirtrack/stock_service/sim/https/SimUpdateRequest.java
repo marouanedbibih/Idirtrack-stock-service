@@ -37,6 +37,4 @@ public class SimUpdateRequest {
     @NotBlank(message = "The status is required")
     private String status;
 
-    @NotNull(message = "The add date is required")
-    private LocalDateTime addDate;
 }
