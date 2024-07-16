@@ -2,7 +2,7 @@ package com.idirtrack.stock_service.device;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.sql.Date;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,7 +127,7 @@ public class DeviceController {
         Date date = null;
         if (dateString != null && !dateString.isEmpty()) {
             try {
-                date = new SimpleDateFormat("yyyy-MM-dd").parse(dateString);
+                date = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(dateString).getTime());
             } catch (ParseException e) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(BasicResponse.builder()
                     .data(null)
@@ -142,4 +142,11 @@ public class DeviceController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
       
+
+    // Count Devices by Status API
+    @GetMapping("/non-install")
+    public ResponseEntity<BasicResponse> countNonInstallDevicesApi() {
+        BasicResponse response = deviceService.countDevicesNonInstalled();
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }
