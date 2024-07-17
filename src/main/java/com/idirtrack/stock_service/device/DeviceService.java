@@ -7,6 +7,8 @@ import com.idirtrack.stock_service.basics.MessageType;
 import com.idirtrack.stock_service.basics.MetaData;
 import com.idirtrack.stock_service.device.https.DeviceRequest;
 import com.idirtrack.stock_service.device.https.DeviceUpdateRequest;
+import com.idirtrack.stock_service.stock.Stock;
+import com.idirtrack.stock_service.stock.StockRepository;
 
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
@@ -19,14 +21,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
+
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +37,8 @@ public class DeviceService {
 
     private final DeviceRepository deviceRepository;
     private final DeviceTypeRepository deviceTypeRepository;
+    private final DeviceStockRepository deviceStockRepository;
+    private final StockRepository stockRepository;
 
     // Save device
     public BasicResponse createDevice(@Valid DeviceRequest deviceRequest, BindingResult bindingResult) throws BasicException {
@@ -72,10 +77,22 @@ public class DeviceService {
         }
 
         // Transform the request to entity
-        DeviceDTO device = transformRequestDTO(deviceRequest);
+        DeviceDTO deviceDTO = transformRequestDTO(deviceRequest);
 
         // Save the device entity
-        deviceRepository.save(transformResponseDTO(device));
+        Device device  = deviceRepository.save(transformResponseDTO(deviceDTO));
+
+
+
+        //check if device stock exists and update it (add quantity)
+        //check with device type and date
+        updateDeviceStock(device);
+                
+
+        
+
+
+        
         // Return a success response
         return BasicResponse.builder()
                 .data(device)
@@ -122,7 +139,7 @@ public class DeviceService {
         existingDevice.setDeviceType(deviceTypeRepository.findByName(deviceUpdateRequest.getTypeDevice()));
         existingDevice.setStatus(DeviceStatus.valueOf(deviceUpdateRequest.getStatus()));
         existingDevice.setRemarque(deviceUpdateRequest.getRemarque());
-        existingDevice.setUpdatedAt(new Date());
+        existingDevice.setUpdatedAt( new Date(System.currentTimeMillis()));
 
         deviceRepository.save(existingDevice);
 
@@ -144,6 +161,9 @@ public class DeviceService {
                     .status(HttpStatus.NOT_FOUND)
                     .build());
         }
+
+        // Update device stock on delete
+        updateDeviceStockOnDelete(device);
 
         deviceRepository.delete(device);
 
@@ -202,7 +222,15 @@ public class DeviceService {
         Map<String, Object> data = new HashMap<>();
         data.put("devices", deviceDTOs);
         data.put("metadata", metaData);
-
+    //if device not found
+        if (devicePage.isEmpty()) {
+            return BasicResponse.builder()
+                    .data(null)
+                    .status(HttpStatus.NOT_FOUND)
+                    .message("No devices found")
+                    .messageType(MessageType.ERROR)
+                    .build();
+        }
         return BasicResponse.builder()
                 .data(data)
                 .status(HttpStatus.OK)
@@ -214,10 +242,11 @@ public class DeviceService {
 
     // Transform DTO to entity
     public Device transformResponseDTO(DeviceDTO deviceDTO) {
+        
         DeviceType deviceType = deviceTypeRepository.findByName(deviceDTO.getDeviceType());
         return Device.builder()
                 .imei(deviceDTO.getIMEI())
-                .createdAt(new Date())
+                .createdAt(new Date(System.currentTimeMillis()))
                 .status(DeviceStatus.NON_INSTALLED)
                 .deviceType(deviceType)
                 .remarque(deviceDTO.getRemarque())
@@ -233,8 +262,65 @@ public class DeviceService {
                 .status(DeviceStatus.valueOf(deviceUpdateRequest.getStatus()))
                 .build();
     }
-    // Transform DTO to entity
+  
+    // Update device stock
+    public void updateDeviceStock(Device device) {
     
+        List<Stock> stocks = stockRepository.findByDateEntree(device.getCreatedAt());
+        Stock stock = null;
+        DeviceStock deviceStock = null;
+    
+        for (Stock s : stocks) {
+            deviceStock = deviceStockRepository.findByStockAndDeviceType(s, device.getDeviceType());
+            if (deviceStock != null) {
+                stock = s;
+                break;
+            }
+        }
+    
+        if (stock == null) {
+            stock = Stock.builder()
+                    .dateEntree(device.getCreatedAt())
+                    .quantity(1)
+                    .build();
+            stock = stockRepository.save(stock);
+    
+            deviceStock = DeviceStock.builder()
+                    .deviceType(device.getDeviceType())
+                    .stock(stock)
+                    .build();
+            deviceStockRepository.save(deviceStock);
+        } else {
+            stock.setQuantity(stock.getQuantity() + 1);
+            stockRepository.save(stock);
+        }
+    }
+
+    // Update device stock on delete
+    private void updateDeviceStockOnDelete(Device device) {
+
+        List<Stock> stocks = stockRepository.findByDateEntree(device.getCreatedAt());
+        Stock stock = null;
+        DeviceStock deviceStock = null;
+
+        for (Stock s : stocks) {
+            deviceStock = deviceStockRepository.findByStockAndDeviceType(s, device.getDeviceType());
+            if (deviceStock != null) {
+                stock = s;
+                break;
+            }
+        }
+
+        if (stock != null) {
+            stock.setQuantity(stock.getQuantity() - 1);
+            stockRepository.save(stock);
+
+            if (stock.getQuantity() <= 0) {
+                deviceStockRepository.delete(deviceStock);
+                stockRepository.delete(stock);
+            }
+        }
+    }
     
 
     // Transform request to DTO
@@ -321,6 +407,16 @@ public class DeviceService {
                 .data(data)
                 .status(HttpStatus.OK)
                 .message("Devices retrieved successfully")
+                .build();
+    }
+
+    //count all devices have status non installed
+    public BasicResponse countDevicesNonInstalled() {
+        long count = deviceRepository.countByStatus(DeviceStatus.NON_INSTALLED);
+        return BasicResponse.builder()
+                .data(count)
+                .status(HttpStatus.OK)
+                .message("Devices count retrieved successfully")
                 .build();
     }
 }
