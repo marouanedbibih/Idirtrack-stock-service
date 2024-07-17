@@ -1,5 +1,6 @@
 package com.idirtrack.stock_service.sim;
 
+import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,44 +23,49 @@ import com.idirtrack.stock_service.basics.MessageType;
 import com.idirtrack.stock_service.basics.MetaData;
 import com.idirtrack.stock_service.sim.https.SimRequest;
 import com.idirtrack.stock_service.sim.https.SimUpdateRequest;
+import com.idirtrack.stock_service.stock.Stock;
+import com.idirtrack.stock_service.stock.StockRepository;
 
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class SimService {
 
     private final SimRepository simRepository;
     private final SimTypeRepository simTypeRepository;
+    private final SimStockRepository simStockRepository;
+    private final StockRepository stockRepository;
 
     // Save SIM
     public BasicResponse createSim(@Valid SimRequest simRequest, BindingResult bindingResult) throws BasicException {
+
+        // Validate the request
         Map<String, String> errors = BasicValidation.getValidationsErrors(bindingResult);
         if (!errors.isEmpty()) {
-            return BasicResponse.builder()
+            throw new BasicException(BasicResponse.builder()
                     .status(HttpStatus.BAD_REQUEST)
-                    .message("Validation failed")
-                    .messagesList(errors)
+                    .message("Invalid fields")
                     .messageType(MessageType.ERROR)
                     .data(errors)
-                    .build();
+                    .build());
         }
 
+        // Check if the SIM already exists
         if (simRepository.existsByCcid(simRequest.getCcid())) {
             Map<String, String> messagesList = new HashMap<>();
             messagesList.put("CCID", "CCID already exists");
-            return BasicResponse.builder()
+            throw new BasicException(BasicResponse.builder()
                     .status(HttpStatus.BAD_REQUEST)
                     .message("CCID already exists")
                     .messageType(MessageType.ERROR)
                     .data(messagesList)
-                    .build();
+                    .build());
         }
 
+        // Check if the SIM type exists by name
         SimType simType = simTypeRepository.findByType(simRequest.getSimType())
                 .orElseThrow(() -> new BasicException(BasicResponse.builder()
                         .status(HttpStatus.BAD_REQUEST)
@@ -68,6 +74,7 @@ public class SimService {
                         .data(null)
                         .build()));
 
+        // Transform the request to entity
         Sim sim = Sim.builder()
                 .pin(simRequest.getPin())
                 .puk(simRequest.getPuk())
@@ -78,10 +85,16 @@ public class SimService {
                 .status(SimStatus.PENDING)
                 .build();
 
+        // Save the SIM entity
         simRepository.save(sim);
 
+        // Update SIM stock
+        updateSimStock(sim);
+
+        // Transform the entity to DTO
         SimDTO simDTO = transformEntityToDTO(sim);
 
+        // Return a success response
         return BasicResponse.builder()
                 .data(simDTO)
                 .message("SIM created successfully")
@@ -91,8 +104,42 @@ public class SimService {
                 .build();
     }
 
+    // Update SIM stock
+    public void updateSimStock(Sim sim) {
+        List<Stock> stocks = stockRepository.findByDateEntree(Date.valueOf(sim.getAddDate().toLocalDate()));
+        Stock stock = null;
+        SimStock simStock = null;
+
+        for (Stock s : stocks) {
+            simStock = simStockRepository.findByStockAndSimType(s, sim.getSimType());
+            if (simStock != null) {
+                stock = s;
+                break;
+            }
+        }
+
+        if (stock == null) {
+            stock = Stock.builder()
+                    .dateEntree(Date.valueOf(sim.getAddDate().toLocalDate()))
+                    .quantity(1)
+                    .build();
+            stock = stockRepository.save(stock);
+
+            simStock = SimStock.builder()
+                    .simType(sim.getSimType())
+                    .stock(stock)
+                    .build();
+            simStockRepository.save(simStock);
+        } else {
+            stock.setQuantity(stock.getQuantity() + 1);
+            stockRepository.save(stock);
+        }
+    }
+
     // Update SIM
     public BasicResponse updateSim(Long id, @Valid SimUpdateRequest simUpdateRequest, BindingResult bindingResult) throws BasicException {
+
+        // Validate the request
         Map<String, String> errors = BasicValidation.getValidationsErrors(bindingResult);
         if (!errors.isEmpty()) {
             throw new BasicException(BasicResponse.builder()
@@ -111,6 +158,7 @@ public class SimService {
                         .status(HttpStatus.NOT_FOUND)
                         .build()));
 
+        // Check if the SIM type exists by name
         SimType simType = simTypeRepository.findByType(simUpdateRequest.getSimType())
                 .orElseThrow(() -> new BasicException(BasicResponse.builder()
                         .status(HttpStatus.BAD_REQUEST)
@@ -119,11 +167,12 @@ public class SimService {
                         .data(null)
                         .build()));
 
+        // Update the existing SIM entity
         existingSim.setPin(simUpdateRequest.getPin());
         existingSim.setPuk(simUpdateRequest.getPuk());
         existingSim.setCcid(simUpdateRequest.getCcid());
         existingSim.setSimType(simType);
-        existingSim.setStatus(SimStatus.valueOf(simUpdateRequest.getStatus().toString()));
+        existingSim.setStatus(SimStatus.valueOf(simUpdateRequest.getStatus()));
         existingSim.setPhoneNumber(simUpdateRequest.getPhoneNumber());
         existingSim.setAddDate(LocalDateTime.now());
 
@@ -146,6 +195,7 @@ public class SimService {
                         .messageType(MessageType.ERROR)
                         .status(HttpStatus.NOT_FOUND)
                         .build()));
+
         sim.setStatus(status);
         simRepository.save(sim);
         return BasicResponse.builder()
@@ -165,12 +215,42 @@ public class SimService {
                         .messageType(MessageType.ERROR)
                         .status(HttpStatus.NOT_FOUND)
                         .build()));
+
+        // Update SIM stock on delete
+        updateSimStockOnDelete(sim);
+
         simRepository.delete(sim);
+
         return BasicResponse.builder()
                 .message("SIM deleted successfully")
                 .messageType(MessageType.SUCCESS)
                 .status(HttpStatus.OK)
                 .build();
+    }
+
+    // Update SIM stock on delete
+    private void updateSimStockOnDelete(Sim sim) {
+        List<Stock> stocks = stockRepository.findByDateEntree(Date.valueOf(sim.getAddDate().toLocalDate()));
+        Stock stock = null;
+        SimStock simStock = null;
+
+        for (Stock s : stocks) {
+            simStock = simStockRepository.findByStockAndSimType(s, sim.getSimType());
+            if (simStock != null) {
+                stock = s;
+                break;
+            }
+        }
+
+        if (stock != null) {
+            stock.setQuantity(stock.getQuantity() - 1);
+            stockRepository.save(stock);
+
+            if (stock.getQuantity() <= 0) {
+                simStockRepository.delete(simStock);
+                stockRepository.delete(stock);
+            }
+        }
     }
 
     // Get SIM by ID

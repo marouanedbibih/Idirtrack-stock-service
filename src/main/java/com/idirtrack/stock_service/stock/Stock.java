@@ -8,8 +8,10 @@ import lombok.NoArgsConstructor;
 import java.sql.Date;
 
 import com.idirtrack.stock_service.device.DeviceStock;
+import com.idirtrack.stock_service.sim.SimStock;
 
 import jakarta.persistence.*;
+
 @Entity
 @Data
 @Builder
@@ -30,4 +32,7 @@ public class Stock {
 
     @OneToOne(mappedBy = "stock")
     private DeviceStock deviceStock;
+
+    @OneToOne(mappedBy = "stock")
+    private SimStock simStock;
 }

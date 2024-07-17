@@ -15,5 +15,4 @@ public interface DeviceTypeRepository  extends JpaRepository<DeviceType, Long>{
   DeviceType findByName(String name);
 
   
-  
 }
