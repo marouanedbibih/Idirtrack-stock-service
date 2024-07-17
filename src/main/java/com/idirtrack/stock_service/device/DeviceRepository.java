@@ -26,5 +26,8 @@ public interface DeviceRepository  extends JpaRepository<Device, Long>{
   //count device have status non install
   Long countByStatus(DeviceStatus status);
 
+  //get all device by status non-installed and pagination
+  Page<Device> findAllByStatus(DeviceStatus status, Pageable pageable);
+
   
 }
