@@ -2,6 +2,8 @@ package com.idirtrack.stock_service.sim;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -47,6 +49,7 @@ public class Sim {
 
     @ManyToOne
     @JoinColumn(name = "sim_type_name", nullable = false)
+    @JsonBackReference // to avoid infinite loop
     private SimType simType;
 
     @Transient
