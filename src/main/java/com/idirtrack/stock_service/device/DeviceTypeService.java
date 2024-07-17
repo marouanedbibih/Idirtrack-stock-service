@@ -13,6 +13,7 @@ import com.idirtrack.stock_service.basics.BasicResponse;
 import com.idirtrack.stock_service.basics.BasicValidation;
 import com.idirtrack.stock_service.basics.MessageType;
 import com.idirtrack.stock_service.device.https.DeviceTypeRequest;
+import java.util.List;
 
 import jakarta.validation.Valid;
 
@@ -84,4 +85,8 @@ public class DeviceTypeService {
                 // Set other fields if necessary
                 .build();
     }
+    //get all device types
+    public List<DeviceType> getAllDeviceTypes() {
+        return deviceTypeRepository.findAll();
+    }    
 }
