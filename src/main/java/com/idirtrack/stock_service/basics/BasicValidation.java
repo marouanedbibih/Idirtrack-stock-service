@@ -1,12 +1,13 @@
 package com.idirtrack.stock_service.basics;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class BasicValidation {
-public static Map<String, String> getValidationsErrors(BindingResult bindingResult) {
+    public static Map<String, String> getValidationsErrors(BindingResult bindingResult) {
         Map<String, String> errorsMap = new HashMap<>();
 
         if (bindingResult.hasErrors()) {

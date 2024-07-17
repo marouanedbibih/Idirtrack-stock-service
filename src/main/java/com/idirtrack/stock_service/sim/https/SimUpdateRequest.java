@@ -3,13 +3,10 @@ package com.idirtrack.stock_service.sim.https;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
-
 
 @Data
 @AllArgsConstructor
@@ -18,23 +15,24 @@ import java.time.LocalDateTime;
 public class SimUpdateRequest {
 
     @NotBlank(message = "The PIN is required")
+    @Pattern(regexp = "\\d{4}", message = "The PIN must be exactly 4 digits")
     private String pin;
 
     @NotBlank(message = "The PUK is required")
-    @Pattern(regexp = "\\d{8}", message = "The PUK must be 8 digits")
+    @Pattern(regexp = "\\d{8}", message = "The PUK must be exactly 8 digits")
     private String puk;
 
     @NotBlank(message = "The CCID is required")
-    @Size(max = 18, message = "The CCID must be less than or equal to 18 characters")
+    @Pattern(regexp = "\\d{1,18}", message = "The CCID must be up to 18 digits")
     private String ccid;
 
-    @NotNull(message = "The SIM type by operator name is required")
+    @NotNull(message = "The SIM type name is required")
     private String simType;
 
     @NotBlank(message = "The phone number is required")
+    @Pattern(regexp = "\\d{10,15}", message = "The Phone Number must be between 10 and 15 digits")
     private String phoneNumber;
 
     @NotBlank(message = "The status is required")
     private String status;
-
 }

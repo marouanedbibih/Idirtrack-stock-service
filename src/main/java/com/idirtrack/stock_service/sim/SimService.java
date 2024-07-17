@@ -26,10 +26,11 @@ import com.idirtrack.stock_service.sim.https.SimUpdateRequest;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-
+@Slf4j
 public class SimService {
 
     private final SimRepository simRepository;
@@ -37,40 +38,28 @@ public class SimService {
 
     // Save SIM
     public BasicResponse createSim(@Valid SimRequest simRequest, BindingResult bindingResult) throws BasicException {
-
-        // Validate the request
         Map<String, String> errors = BasicValidation.getValidationsErrors(bindingResult);
         if (!errors.isEmpty()) {
-            throw new BasicException(BasicResponse.builder()
+            return BasicResponse.builder()
                     .status(HttpStatus.BAD_REQUEST)
-                    .message("Invalid fields")
+                    .message("Validation failed")
+                    .messagesList(errors)
                     .messageType(MessageType.ERROR)
                     .data(errors)
-                    .build());
+                    .build();
         }
 
-        // Check if the SIM already exists
-        try {
-            if (simRepository.existsByCcid(simRequest.getCcid())) {
-                Map<String, String> messagesList = new HashMap<>();
-                messagesList.put("CCID", "CCID already exists");
-                throw new BasicException(BasicResponse.builder()
-                        .status(HttpStatus.BAD_REQUEST)
-                        .message("CCID already exists")
-                        .messageType(MessageType.ERROR)
-                        .data(messagesList)
-                        .build());
-            }
-        } catch (BasicException e) {
-            throw new BasicException(BasicResponse.builder()
+        if (simRepository.existsByCcid(simRequest.getCcid())) {
+            Map<String, String> messagesList = new HashMap<>();
+            messagesList.put("CCID", "CCID already exists");
+            return BasicResponse.builder()
                     .status(HttpStatus.BAD_REQUEST)
-                    .message(e.getMessage())
+                    .message("CCID already exists")
                     .messageType(MessageType.ERROR)
-                    .data(e.getResponse().getData())
-                    .build());
+                    .data(messagesList)
+                    .build();
         }
 
-        // Check if the SIM type exists by name
         SimType simType = simTypeRepository.findByType(simRequest.getSimType())
                 .orElseThrow(() -> new BasicException(BasicResponse.builder()
                         .status(HttpStatus.BAD_REQUEST)
@@ -79,7 +68,6 @@ public class SimService {
                         .data(null)
                         .build()));
 
-        // Transform the request to entity
         Sim sim = Sim.builder()
                 .pin(simRequest.getPin())
                 .puk(simRequest.getPuk())
@@ -90,13 +78,10 @@ public class SimService {
                 .status(SimStatus.PENDING)
                 .build();
 
-        // Save the SIM entity
         simRepository.save(sim);
 
-        // Transform the entity to DTO
         SimDTO simDTO = transformEntityToDTO(sim);
 
-        // Return a success response
         return BasicResponse.builder()
                 .data(simDTO)
                 .message("SIM created successfully")
@@ -108,8 +93,6 @@ public class SimService {
 
     // Update SIM
     public BasicResponse updateSim(Long id, @Valid SimUpdateRequest simUpdateRequest, BindingResult bindingResult) throws BasicException {
-
-        // Validate the request
         Map<String, String> errors = BasicValidation.getValidationsErrors(bindingResult);
         if (!errors.isEmpty()) {
             throw new BasicException(BasicResponse.builder()
@@ -128,7 +111,6 @@ public class SimService {
                         .status(HttpStatus.NOT_FOUND)
                         .build()));
 
-        // Check if the SIM type exists by name
         SimType simType = simTypeRepository.findByType(simUpdateRequest.getSimType())
                 .orElseThrow(() -> new BasicException(BasicResponse.builder()
                         .status(HttpStatus.BAD_REQUEST)
@@ -137,7 +119,6 @@ public class SimService {
                         .data(null)
                         .build()));
 
-        // Update the existing SIM entity
         existingSim.setPin(simUpdateRequest.getPin());
         existingSim.setPuk(simUpdateRequest.getPuk());
         existingSim.setCcid(simUpdateRequest.getCcid());
