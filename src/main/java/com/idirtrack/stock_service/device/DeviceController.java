@@ -144,9 +144,25 @@ public class DeviceController {
       
 
     // Count Devices by Status API
-    @GetMapping("/non-install")
+    @GetMapping("/Count-non-install")
     public ResponseEntity<BasicResponse> countNonInstallDevicesApi() {
         BasicResponse response = deviceService.countDevicesNonInstalled();
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    //get list of devices by status non-installed
+    @GetMapping("/device-create-boitier")
+    public ResponseEntity<BasicResponse> getNonInstalledDevicesApi(@RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        BasicResponse response = deviceService.getAllDevicesNonInstalled(page, size);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+    //search device non installed by imei
+    @GetMapping("/device-create-boitier/search")
+    public ResponseEntity<BasicResponse> searchNonInstalledDevicesApi(@RequestParam(value = "imei", required = false) String imei,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        BasicResponse response = deviceService.searchNonInstalledDevices(imei, page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 }

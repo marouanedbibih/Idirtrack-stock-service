@@ -13,4 +13,6 @@ public interface DeviceStockRepository  extends JpaRepository<DeviceStock, Long>
 
   DeviceStock findByStockAndDeviceType(Stock stock, DeviceType deviceType);
 
+
+
 }
