@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
+import java.sql.Date;
 import java.util.List;
 
 @Repository
@@ -16,7 +16,7 @@ public interface SimRepository extends JpaRepository<Sim, Long>, JpaSpecificatio
     List<Sim> findByAnyFieldContaining(@Param("query") String query);
 
     @Query("SELECT s FROM Sim s WHERE s.addDate BETWEEN :startDate AND :endDate")
-    List<Sim> findByAddDateBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    List<Sim> findByAddDateBetween(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
     boolean existsByCcid(String ccid);  // Added method definition
 }

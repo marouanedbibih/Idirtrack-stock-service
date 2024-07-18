@@ -1,15 +1,30 @@
 package com.idirtrack.stock_service.sim;
 
-import com.idirtrack.stock_service.sim.https.*;
-import com.idirtrack.stock_service.basics.BasicException;
-import com.idirtrack.stock_service.basics.BasicResponse;
+import java.sql.Date;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.idirtrack.stock_service.basics.BasicException;
+import com.idirtrack.stock_service.basics.BasicResponse;
+import com.idirtrack.stock_service.basics.MessageType;
+import com.idirtrack.stock_service.sim.https.SimRequest;
+import com.idirtrack.stock_service.sim.https.SimUpdateRequest;
 
 import jakarta.validation.Valid;
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/sims")
@@ -34,12 +49,36 @@ public class SimController {
 
     @PostMapping
     public ResponseEntity<BasicResponse> createSim(@Valid @RequestBody SimRequest simRequest, BindingResult bindingResult) throws BasicException {
+        if (bindingResult.hasErrors()) {
+            BasicResponse response = BasicResponse.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .message("Validation Error")
+                    .messagesList(bindingResult.getFieldErrors().stream()
+                            .collect(Collectors.toMap(
+                                    fieldError -> fieldError.getField(),
+                                    fieldError -> fieldError.getDefaultMessage())))
+                    .messageType(MessageType.ERROR)
+                    .build();
+            return ResponseEntity.status(response.getStatus()).body(response);
+        }
         BasicResponse response = simService.createSim(simRequest, bindingResult);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<BasicResponse> updateSim(@PathVariable Long id, @Valid @RequestBody SimUpdateRequest simUpdateRequest, BindingResult bindingResult) throws BasicException {
+        if (bindingResult.hasErrors()) {
+            BasicResponse response = BasicResponse.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .message("Validation Error")
+                    .messagesList(bindingResult.getFieldErrors().stream()
+                            .collect(Collectors.toMap(
+                                    fieldError -> fieldError.getField(),
+                                    fieldError -> fieldError.getDefaultMessage())))
+                    .messageType(MessageType.ERROR)
+                    .build();
+            return ResponseEntity.status(response.getStatus()).body(response);
+        }
         BasicResponse response = simService.updateSim(id, simUpdateRequest, bindingResult);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
@@ -60,7 +99,7 @@ public class SimController {
     public ResponseEntity<BasicResponse> searchSims(@RequestParam String query,
                                                     @RequestParam(required = false) String operatorType,
                                                     @RequestParam(required = false) String status,
-                                                    @RequestParam(required = false) LocalDateTime date,
+                                                    @RequestParam(required = false) Date date,
                                                     @RequestParam(defaultValue = "1") int page,
                                                     @RequestParam(defaultValue = "10") int size) {
         BasicResponse response = simService.searchSims(query, operatorType, status, date, page, size);
@@ -68,10 +107,8 @@ public class SimController {
     }
 
     @GetMapping("/searchByDate")
-    public ResponseEntity<BasicResponse> searchSimsByDate(@RequestParam String startDate, @RequestParam String endDate) {
-        LocalDateTime start = LocalDateTime.parse(startDate);
-        LocalDateTime end = LocalDateTime.parse(endDate);
-        BasicResponse response = simService.searchSimsByDateRange(start, end);
+    public ResponseEntity<BasicResponse> searchSimsByDate(@RequestParam Date startDate, @RequestParam Date endDate) {
+        BasicResponse response = simService.searchSimsByDateRange(startDate, endDate);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 }

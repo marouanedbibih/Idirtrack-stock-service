@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class SimTypeRequest {
-
     @NotBlank(message = "The type is required")
     private String type;
 }

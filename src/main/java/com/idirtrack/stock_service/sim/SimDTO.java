@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+import java.sql.Date;
 
 @Data
 @AllArgsConstructor
@@ -18,5 +18,5 @@ public class SimDTO {
     private String simType; // Operator name like SFR, INWI, ORANGE
     private SimStatus status;
     private String phoneNumber;
-    private LocalDateTime addDate;
+    private Date addDate;
 }

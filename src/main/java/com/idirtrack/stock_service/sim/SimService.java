@@ -1,21 +1,5 @@
 package com.idirtrack.stock_service.sim;
 
-import java.sql.Date;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
-
 import com.idirtrack.stock_service.basics.BasicException;
 import com.idirtrack.stock_service.basics.BasicResponse;
 import com.idirtrack.stock_service.basics.BasicValidation;
@@ -29,6 +13,20 @@ import com.idirtrack.stock_service.stock.StockRepository;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,7 +79,7 @@ public class SimService {
                 .ccid(simRequest.getCcid())
                 .simType(simType)
                 .phoneNumber(simRequest.getPhoneNumber())
-                .addDate(LocalDateTime.now())
+                .addDate(new Date(System.currentTimeMillis()))
                 .status(SimStatus.PENDING)
                 .build();
 
@@ -106,7 +104,7 @@ public class SimService {
 
     // Update SIM stock
     public void updateSimStock(Sim sim) {
-        List<Stock> stocks = stockRepository.findByDateEntree(Date.valueOf(sim.getAddDate().toLocalDate()));
+        List<Stock> stocks = stockRepository.findByDateEntree(sim.getAddDate());
         Stock stock = null;
         SimStock simStock = null;
 
@@ -120,7 +118,7 @@ public class SimService {
 
         if (stock == null) {
             stock = Stock.builder()
-                    .dateEntree(Date.valueOf(sim.getAddDate().toLocalDate()))
+                    .dateEntree(sim.getAddDate())
                     .quantity(1)
                     .build();
             stock = stockRepository.save(stock);
@@ -174,7 +172,6 @@ public class SimService {
         existingSim.setSimType(simType);
         existingSim.setStatus(SimStatus.valueOf(simUpdateRequest.getStatus()));
         existingSim.setPhoneNumber(simUpdateRequest.getPhoneNumber());
-        existingSim.setAddDate(LocalDateTime.now());
 
         simRepository.save(existingSim);
 
@@ -230,7 +227,7 @@ public class SimService {
 
     // Update SIM stock on delete
     private void updateSimStockOnDelete(Sim sim) {
-        List<Stock> stocks = stockRepository.findByDateEntree(Date.valueOf(sim.getAddDate().toLocalDate()));
+        List<Stock> stocks = stockRepository.findByDateEntree(sim.getAddDate());
         Stock stock = null;
         SimStock simStock = null;
 
@@ -291,7 +288,7 @@ public class SimService {
     }
 
     // Search SIMs with pagination
-    public BasicResponse searchSims(String query, String operatorType, String status, LocalDateTime date, int page, int size) {
+    public BasicResponse searchSims(String query, String operatorType, String status, Date date, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Specification<Sim> specification = (root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -342,7 +339,7 @@ public class SimService {
     }
 
     // Search SIMs by date range
-    public BasicResponse searchSimsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+    public BasicResponse searchSimsByDateRange(Date startDate, Date endDate) {
         List<Sim> sims = simRepository.findByAddDateBetween(startDate, endDate);
         if (sims.isEmpty()) {
             return BasicResponse.builder()
