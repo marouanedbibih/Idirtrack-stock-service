@@ -1,30 +1,28 @@
 server:
-  port: ${SPRING_APP_PORT:8080}
-
+    port: ${SPRING_APP_PORT}
 spring:
-  application:
-    name: ${SPRING_APPLICATION_NAME:spring-boot-app}
-  datasource:
-    driver-class-name: ${DATASOURCE_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
-    url: ${DATASOURCE_URL:jdbc:mysql://localhost:3306/idirtech_stock?createDatabaseIfNotExist=true&useSSL=false}
-    username: ${DATASOURCE_USERNAME:root}
-    password: ${DATASOURCE_PASSWORD:IdirTech01-+@#}
-  jpa:
-    hibernate:
-      ddl-auto: ${JPA_HIBERNATE_DDL_AUTO:update}
-    show-sql: true
-    database-platform: ${JPA_DATABASE_PLATFORM:org.hibernate.dialect.MySQLDialect}
+    application:
+      name: ${SPRING_APPLICATION_NAME}
+    datasource:
+      driver-class-name: ${DATASOURCE_DRIVER_CLASS_NAME}
+      url: ${DATASOURCE_URL}
+      username: ${DATASOURCE_USERNAME}
+      password: ${DATASOURCE_PASSWORD}  
+    jpa:
+      hibernate:
+        ddl-auto: ${JPA_HIBERNATE_DDL_AUTO}
+      database: ${JPA_DATABASE}
+      database-platform: ${JPA_DATABASE_PLATFORM}
+    config:
+      import: optional:configserver:${CONFIG_SERVER_URL}
+
+
+eureka:
+    client:
+        service-url:
+            defaultZone: ${EUREKA_SERVER_URL}
 
 logging:
   level:
-    root: INFO
-    org.springframework.web: DEBUG
-  file:
-    path: ${FILE_PATH:src/main/resources/static/log.txt}
-
-eureka:
-  client:
-    service-url:
-      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
-    register-with-eureka: true
-    fetch-registry: true
+    org.springframework.web: ERROR
+    org.hibernate: ERROR

@@ -17,21 +17,21 @@ import com.idirtrack.stock_service.device.https.DeviceTypeRequest;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/stock-api")
+@RequestMapping("/stock-api/device-types")
 public class DeviceTypeController {
   
  @Autowired
     private DeviceTypeService deviceTypeService;
 
     // Save device type
-    @PostMapping("/type")
+    @PostMapping("/")
     public ResponseEntity<BasicResponse> createDeviceType(@Valid @RequestBody DeviceTypeRequest request, BindingResult bindingResult) {
         try {
             BasicResponse response = deviceTypeService.createDeviceType(request, bindingResult);
             return ResponseEntity.status(response.getStatus()).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .message(e.getMessage())
                     .messageType(MessageType.ERROR)
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)

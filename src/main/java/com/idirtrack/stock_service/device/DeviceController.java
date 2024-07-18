@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 
 
 @RestController
-@RequestMapping("/stock-api")
+@RequestMapping("/stock-api/devices")
 
 
 public class DeviceController {
@@ -41,14 +41,14 @@ public class DeviceController {
     private DeviceService deviceService;
 
     // Save Device API
-    @PostMapping("/device")
+    @PostMapping("/")
     public ResponseEntity<BasicResponse> createDeviceApi(@RequestBody @Valid DeviceRequest deviceRequest, BindingResult bindingResult) {
         try {
             BasicResponse response = deviceService.createDevice(deviceRequest, bindingResult);
             return ResponseEntity.status(response.getStatus()).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
-                .data(null)
+                .content(null)
                 .message(e.getMessage())
                 .messageType(MessageType.ERROR)
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -57,7 +57,7 @@ public class DeviceController {
     }
 
     // Update Device API
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/")
     public ResponseEntity<BasicResponse> updateDeviceApi(@PathVariable Long id, @RequestBody @Valid DeviceUpdateRequest deviceUpdateRequest, BindingResult bindingResult) {
         try {
             BasicResponse response = deviceService.updateDevice(id, deviceUpdateRequest, bindingResult);
@@ -66,7 +66,7 @@ public class DeviceController {
             return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
-                .data(null)
+                .content(null)
                 .message(e.getMessage())
                 .messageType(MessageType.ERROR)
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -76,14 +76,14 @@ public class DeviceController {
     }
 
     // Delete Device API
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/")
     public ResponseEntity<BasicResponse> deleteDeviceApi(@PathVariable Long id) {
         try {
             BasicResponse response = deviceService.deleteDevice(id);
             return ResponseEntity.status(response.getStatus()).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
-                .data(null)
+                .content(null)
                 .message(e.getMessage())
                 .messageType(MessageType.ERROR)
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -92,14 +92,14 @@ public class DeviceController {
     }
 
     // Get Device by ID API
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/")
     public ResponseEntity<BasicResponse> getDeviceApi(@PathVariable Long id) {
         try {
             BasicResponse response = deviceService.getDeviceById(id);
             return ResponseEntity.status(response.getStatus()).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
-                .data(null)
+                .content(null)
                 .message(e.getMessage())
                 .messageType(MessageType.ERROR)
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -109,7 +109,7 @@ public class DeviceController {
 
     // Get All Devices API
     
-    @GetMapping("/devices")
+    @GetMapping("/")
     public ResponseEntity<BasicResponse> getAllBoitiers(@RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size) {
         BasicResponse response = deviceService.getAllDevices(page, size);
@@ -130,7 +130,7 @@ public class DeviceController {
                 date = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(dateString).getTime());
             } catch (ParseException e) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .message("Invalid date format")
                     .messageType(MessageType.ERROR)
                     .status(HttpStatus.BAD_REQUEST)
@@ -144,21 +144,21 @@ public class DeviceController {
       
 
     // Count Devices by Status API
-    @GetMapping("/Count-non-install")
+    @GetMapping("/count-non-install/")
     public ResponseEntity<BasicResponse> countNonInstallDevicesApi() {
         BasicResponse response = deviceService.countDevicesNonInstalled();
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     //get list of devices by status non-installed
-    @GetMapping("/device-create-boitier")
+    @GetMapping("/device-create-boitier/")
     public ResponseEntity<BasicResponse> getNonInstalledDevicesApi(@RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size) {
         BasicResponse response = deviceService.getAllDevicesNonInstalled(page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
     //search device non installed by imei
-    @GetMapping("/device-create-boitier/search")
+    @GetMapping("/device-create-boitier/search/")
     public ResponseEntity<BasicResponse> searchNonInstalledDevicesApi(@RequestParam(value = "imei", required = false) String imei,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {

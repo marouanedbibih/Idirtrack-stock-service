@@ -24,7 +24,7 @@ public class SimTypeService {
         Map<String, String> messagesList = BasicValidation.getValidationsErrors(bindingResult);
         if (!messagesList.isEmpty()) {
             throw new BasicException(BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .message("Validation Error")
                     .messagesList(messagesList)
                     .messageType(MessageType.ERROR)
@@ -37,7 +37,7 @@ public class SimTypeService {
         if (simTypeRepository.existsByType(request.getType())) {
             messagesList.put("type", "SIM type with this name already exists");
             throw new BasicException(BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .message("SIM type already exists")
                     .messagesList(messagesList)
                     .messageType(MessageType.ERROR)
@@ -56,7 +56,7 @@ public class SimTypeService {
 
         // Return a success response
         return BasicResponse.builder()
-                .data(simType)
+                .content(simType)
                 .message("SIM type created successfully")
                 .messageType(MessageType.SUCCESS)
                 .status(HttpStatus.CREATED)
@@ -96,7 +96,7 @@ public class SimTypeService {
 //         Map<String, String> messagesList = BasicValidation.getValidationsErrors(bindingResult);
 //         if (!messagesList.isEmpty()) {
 //             throw new BasicException(BasicResponse.builder()
-//                     .data(null)
+//                     .content(null)
 //                     .message("Validation Error")
 //                     .messagesList(messagesList)
 //                     .messageType(MessageType.ERROR)
@@ -109,7 +109,7 @@ public class SimTypeService {
 //         if (simTypeRepository.existsByType(request.getType())) {
 //             messagesList.put("type", "SIM type with this name already exists");
 //             throw new BasicException(BasicResponse.builder()
-//                     .data(null)
+//                     .content(null)
 //                     .message("SIM type already exists")
 //                     .messagesList(messagesList)
 //                     .messageType(MessageType.ERROR)
@@ -128,7 +128,7 @@ public class SimTypeService {
 
 //         // Return a success response
 //         return BasicResponse.builder()
-//                 .data(simType)
+//                 .content(simType)
 //                 .message("SIM type created successfully")
 //                 .messageType(MessageType.SUCCESS)
 //                 .status(HttpStatus.CREATED)

@@ -12,51 +12,51 @@ import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/api/sims")
-@CrossOrigin(origins = "http://localhost:3000")
+@RequestMapping("/stock-api/sims")
+// @CrossOrigin(origins = "http://localhost:3000")
 public class SimController {
 
     @Autowired
     private SimService simService;
 
-    @GetMapping
+    @GetMapping("/")
     public ResponseEntity<BasicResponse> getAllSims(@RequestParam(defaultValue = "1") int page,
                                                     @RequestParam(defaultValue = "5") int size) {
         BasicResponse response = simService.getAllSims(page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/")
     public ResponseEntity<BasicResponse> getSimById(@PathVariable Long id) throws BasicException {
         BasicResponse response = simService.getSimById(id);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @PostMapping
+    @PostMapping("/")
     public ResponseEntity<BasicResponse> createSim(@Valid @RequestBody SimRequest simRequest, BindingResult bindingResult) throws BasicException {
         BasicResponse response = simService.createSim(simRequest, bindingResult);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/")
     public ResponseEntity<BasicResponse> updateSim(@PathVariable Long id, @Valid @RequestBody SimUpdateRequest simUpdateRequest, BindingResult bindingResult) throws BasicException {
         BasicResponse response = simService.updateSim(id, simUpdateRequest, bindingResult);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @PutMapping("/{id}/status")
+    @PutMapping("/{id}/status/")
     public ResponseEntity<BasicResponse> updateSimStatus(@PathVariable Long id, @RequestParam SimStatus status) throws BasicException {
         BasicResponse response = simService.updateSimStatus(id, status);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/")
     public ResponseEntity<BasicResponse> deleteSim(@PathVariable Long id) throws BasicException {
         BasicResponse response = simService.deleteSim(id);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @GetMapping("/search")
+    @GetMapping("/search/")
     public ResponseEntity<BasicResponse> searchSims(@RequestParam String query,
                                                     @RequestParam(required = false) String operatorType,
                                                     @RequestParam(required = false) String status,
@@ -67,7 +67,7 @@ public class SimController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @GetMapping("/searchByDate")
+    @GetMapping("/search-by-date/")
     public ResponseEntity<BasicResponse> searchSimsByDate(@RequestParam String startDate, @RequestParam String endDate) {
         LocalDateTime start = LocalDateTime.parse(startDate);
         LocalDateTime end = LocalDateTime.parse(endDate);
