@@ -4,19 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.sql.Date;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SimDTO {
     private Long id;
     private String pin;
     private String puk;
     private String ccid;
-    private String simType; // Operator name like SFR, INWI, ORANGE
+    private String simType;
     private SimStatus status;
     private String phoneNumber;
-    private Date addDate;
+    private java.sql.Date addDate;
+
+    // Add this method if it doesn't exist
+    private Long simMicroserviceId;
 }

@@ -358,6 +358,95 @@ public class SimService {
                 .build();
     }
 
+    // Count all non-installed SIMs
+    public BasicResponse countNonInstalledSims() {
+        long count = simRepository.countByStatus(SimStatus.PENDING);
+        return BasicResponse.builder()
+                .data(count)
+                .status(HttpStatus.OK)
+                .message("Non-installed SIMs count retrieved successfully")
+                .build();
+    }
+
+    // Get all non-installed SIMs with pagination
+    public BasicResponse getAllNonInstalledSims(int page, int size) {
+        Pageable pageRequest = PageRequest.of(page - 1, size);
+        Page<Sim> simPage = simRepository.findAllByStatus(SimStatus.PENDING, pageRequest);
+
+        List<SimDTO> simDTOs = simPage.getContent().stream()
+                .map(sim -> SimDTO.builder()
+                        .simMicroserviceId(sim.getId())
+                        .phoneNumber(sim.getPhoneNumber())
+                        .ccid(sim.getCcid())
+                        .build())
+                .collect(Collectors.toList());
+
+        MetaData metaData = MetaData.builder()
+                .currentPage(simPage.getNumber() + 1)
+                .totalPages(simPage.getTotalPages())
+                .size(simPage.getSize())
+                .build();
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("sims", simDTOs);
+        data.put("metadata", metaData);
+
+        if (simPage.isEmpty()) {
+            return BasicResponse.builder()
+                    .data(null)
+                    .status(HttpStatus.NOT_FOUND)
+                    .message("No non-installed SIMs found")
+                    .messageType(MessageType.ERROR)
+                    .build();
+        }
+        return BasicResponse.builder()
+                .data(data)
+                .status(HttpStatus.OK)
+                .message("Non-installed SIMs retrieved successfully")
+                .build();
+    }
+
+    // Search non-installed SIMs by phone number or CCID with pagination
+    public BasicResponse searchNonInstalledSims(String query, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Sim> simPage = simRepository.findAllByStatusAndPhoneNumberContainingOrCcidContaining(SimStatus.PENDING, query, pageable);
+    
+        if (simPage.isEmpty()) {
+            return BasicResponse.builder()
+                    .data(null)
+                    .status(HttpStatus.NOT_FOUND)
+                    .message("No non-installed SIMs found")
+                    .messageType(MessageType.ERROR)
+                    .build();
+        }
+    
+        List<SimDTO> simDTOs = simPage.getContent().stream()
+                .map(sim -> SimDTO.builder()
+                        .simMicroserviceId(sim.getId())
+                        .phoneNumber(sim.getPhoneNumber())
+                        .ccid(sim.getCcid())
+                        .build())
+                .collect(Collectors.toList());
+    
+        MetaData metaData = MetaData.builder()
+                .currentPage(simPage.getNumber() + 1)
+                .totalPages(simPage.getTotalPages())
+                .size(simPage.getSize())
+                .build();
+    
+        Map<String, Object> data = new HashMap<>();
+        data.put("sims", simDTOs);
+        data.put("metadata", metaData);
+    
+        return BasicResponse.builder()
+                .data(data)
+                .status(HttpStatus.OK)
+                .message("Non-installed SIMs retrieved successfully")
+                .messageType(MessageType.SUCCESS)
+                .build();
+    }
+    
+
     // Transform entity to DTO
     private SimDTO transformEntityToDTO(Sim sim) {
         return SimDTO.builder()
@@ -369,6 +458,7 @@ public class SimService {
                 .status(sim.getStatus())
                 .phoneNumber(sim.getPhoneNumber())
                 .addDate(sim.getAddDate())
+                .simMicroserviceId(sim.getId())  // Ensure this method is present
                 .build();
     }
 }

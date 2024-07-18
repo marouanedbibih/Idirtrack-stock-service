@@ -1,5 +1,7 @@
 package com.idirtrack.stock_service.sim;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -18,5 +20,12 @@ public interface SimRepository extends JpaRepository<Sim, Long>, JpaSpecificatio
     @Query("SELECT s FROM Sim s WHERE s.addDate BETWEEN :startDate AND :endDate")
     List<Sim> findByAddDateBetween(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
-    boolean existsByCcid(String ccid);  // Added method definition
+    boolean existsByCcid(String ccid);
+
+    Long countByStatus(SimStatus status);
+
+    Page<Sim> findAllByStatus(SimStatus status, Pageable pageable);
+
+    @Query("SELECT s FROM Sim s WHERE s.status = :status AND (s.phoneNumber LIKE %:query% OR s.ccid LIKE %:query%)")
+    Page<Sim> findAllByStatusAndPhoneNumberContainingOrCcidContaining(@Param("status") SimStatus status, @Param("query") String query, Pageable pageable);
 }
