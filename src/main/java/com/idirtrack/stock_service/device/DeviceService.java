@@ -419,5 +419,91 @@ public class DeviceService {
                 .message("Devices count retrieved successfully")
                 .build();
     }
+    //get all device  non installed  by pagination
+    
+    public BasicResponse getAllDevicesNonInstalled(int page, int size) {
+        // Create pagination
+        Pageable pageRequest = PageRequest.of(page - 1, size);
+
+        // Retrieve all devices from the database
+        Page<Device> devicePage = deviceRepository.findAllByStatus(DeviceStatus.NON_INSTALLED, pageRequest);
+
+        // Create a list of DTOs for devices
+        List<DeviceBoitierDTO> deviceDTOs = devicePage.getContent().stream()
+                .map(device -> DeviceBoitierDTO.builder()
+                        .deviceMicroserviceId(device.getId())
+                        .imei(device.getImei())
+                        .build())
+
+                .collect(Collectors.toList());
+
+        MetaData metaData = MetaData.builder()
+                .currentPage(devicePage.getNumber() + 1)
+                .totalPages(devicePage.getTotalPages())
+                .size(devicePage.getSize())
+                .build();
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("devices", deviceDTOs);
+        data.put("metadata", metaData);
+        // if device not found
+        if (devicePage.isEmpty()) {
+            return BasicResponse.builder()
+                    .data(null)
+                    .status(HttpStatus.NOT_FOUND)
+                    .message("No devices found")
+                    .messageType(MessageType.ERROR)
+                    .build();
+        }
+        return BasicResponse.builder()
+                .data(data)
+                .status(HttpStatus.OK)
+                .message("Devices retrieved successfully")
+                .build();
+    }
+
+    //search device  non installed  by imei
+    // Search non-installed devices by IMEI with pagination
+    public BasicResponse searchNonInstalledDevices(String imei, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Device> devicePage = deviceRepository.findAllByStatusAndImeiContaining( DeviceStatus.NON_INSTALLED,imei, pageable);
+
+        if (devicePage.isEmpty()) {
+            return BasicResponse.builder()
+                    .data(null)
+                    .status(HttpStatus.NOT_FOUND)
+                    .message("No non-installed devices found")
+                    .messageType(MessageType.ERROR)
+                    .build();
+        }
+
+        List<DeviceBoitierDTO> deviceDTOs = devicePage.getContent().stream()
+                .map(device -> DeviceBoitierDTO.builder()
+                        .deviceMicroserviceId(device.getId())
+                        .imei(device.getImei())
+                        .build())
+                .collect(Collectors.toList());
+
+        MetaData metaData = MetaData.builder()
+                .currentPage(devicePage.getNumber() + 1)
+                .totalPages(devicePage.getTotalPages())
+                .size(devicePage.getSize())
+                .build();
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("devices", deviceDTOs);
+        data.put("metadata", metaData);
+
+        return BasicResponse.builder()
+                .data(data)
+                .status(HttpStatus.OK)
+                .message("Non-installed devices retrieved successfully")
+                .messageType(MessageType.SUCCESS)
+                .build();
+    }
+
+    
+    
+    
 }
 
