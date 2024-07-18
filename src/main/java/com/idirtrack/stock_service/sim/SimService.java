@@ -373,8 +373,8 @@ public class SimService {
         Pageable pageRequest = PageRequest.of(page - 1, size);
         Page<Sim> simPage = simRepository.findAllByStatus(SimStatus.PENDING, pageRequest);
 
-        List<SimDTO> simDTOs = simPage.getContent().stream()
-                .map(sim -> SimDTO.builder()
+        List<SimBoitierDTO> simDTOs = simPage.getContent().stream()
+                .map(sim -> SimBoitierDTO.builder()
                         .simMicroserviceId(sim.getId())
                         .phoneNumber(sim.getPhoneNumber())
                         .ccid(sim.getCcid())
@@ -410,7 +410,7 @@ public class SimService {
     public BasicResponse searchNonInstalledSims(String query, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Sim> simPage = simRepository.findAllByStatusAndPhoneNumberContainingOrCcidContaining(SimStatus.PENDING, query, pageable);
-    
+
         if (simPage.isEmpty()) {
             return BasicResponse.builder()
                     .data(null)
@@ -419,25 +419,25 @@ public class SimService {
                     .messageType(MessageType.ERROR)
                     .build();
         }
-    
-        List<SimDTO> simDTOs = simPage.getContent().stream()
-                .map(sim -> SimDTO.builder()
+
+        List<SimBoitierDTO> simDTOs = simPage.getContent().stream()
+                .map(sim -> SimBoitierDTO.builder()
                         .simMicroserviceId(sim.getId())
                         .phoneNumber(sim.getPhoneNumber())
                         .ccid(sim.getCcid())
                         .build())
                 .collect(Collectors.toList());
-    
+
         MetaData metaData = MetaData.builder()
                 .currentPage(simPage.getNumber() + 1)
                 .totalPages(simPage.getTotalPages())
                 .size(simPage.getSize())
                 .build();
-    
+
         Map<String, Object> data = new HashMap<>();
         data.put("sims", simDTOs);
         data.put("metadata", metaData);
-    
+
         return BasicResponse.builder()
                 .data(data)
                 .status(HttpStatus.OK)
@@ -445,7 +445,6 @@ public class SimService {
                 .messageType(MessageType.SUCCESS)
                 .build();
     }
-    
 
     // Transform entity to DTO
     private SimDTO transformEntityToDTO(Sim sim) {
@@ -458,7 +457,6 @@ public class SimService {
                 .status(sim.getStatus())
                 .phoneNumber(sim.getPhoneNumber())
                 .addDate(sim.getAddDate())
-                .simMicroserviceId(sim.getId())  // Ensure this method is present
                 .build();
     }
 }

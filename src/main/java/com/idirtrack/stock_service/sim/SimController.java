@@ -88,6 +88,7 @@ public class SimController {
         BasicResponse response = simService.getAllNonInstalledSims(page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+    
 
     // Search non-installed SIMs by phone number or CCID
     @GetMapping("/non-installed-sims/search")
