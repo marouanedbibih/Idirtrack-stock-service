@@ -1,21 +1,5 @@
 package com.idirtrack.stock_service.sim;
 
-import java.sql.Date;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
-
 import com.idirtrack.stock_service.basics.BasicException;
 import com.idirtrack.stock_service.basics.BasicResponse;
 import com.idirtrack.stock_service.basics.BasicValidation;
@@ -29,6 +13,20 @@ import com.idirtrack.stock_service.stock.StockRepository;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,7 +79,7 @@ public class SimService {
                 .ccid(simRequest.getCcid())
                 .simType(simType)
                 .phoneNumber(simRequest.getPhoneNumber())
-                .addDate(LocalDateTime.now())
+                .addDate(new Date(System.currentTimeMillis()))
                 .status(SimStatus.PENDING)
                 .build();
 
@@ -106,7 +104,7 @@ public class SimService {
 
     // Update SIM stock
     public void updateSimStock(Sim sim) {
-        List<Stock> stocks = stockRepository.findByDateEntree(Date.valueOf(sim.getAddDate().toLocalDate()));
+        List<Stock> stocks = stockRepository.findByDateEntree(sim.getAddDate());
         Stock stock = null;
         SimStock simStock = null;
 
@@ -120,7 +118,7 @@ public class SimService {
 
         if (stock == null) {
             stock = Stock.builder()
-                    .dateEntree(Date.valueOf(sim.getAddDate().toLocalDate()))
+                    .dateEntree(sim.getAddDate())
                     .quantity(1)
                     .build();
             stock = stockRepository.save(stock);
@@ -174,7 +172,6 @@ public class SimService {
         existingSim.setSimType(simType);
         existingSim.setStatus(SimStatus.valueOf(simUpdateRequest.getStatus()));
         existingSim.setPhoneNumber(simUpdateRequest.getPhoneNumber());
-        existingSim.setAddDate(LocalDateTime.now());
 
         simRepository.save(existingSim);
 
@@ -230,7 +227,7 @@ public class SimService {
 
     // Update SIM stock on delete
     private void updateSimStockOnDelete(Sim sim) {
-        List<Stock> stocks = stockRepository.findByDateEntree(Date.valueOf(sim.getAddDate().toLocalDate()));
+        List<Stock> stocks = stockRepository.findByDateEntree(sim.getAddDate());
         Stock stock = null;
         SimStock simStock = null;
 
@@ -291,7 +288,7 @@ public class SimService {
     }
 
     // Search SIMs with pagination
-    public BasicResponse searchSims(String query, String operatorType, String status, LocalDateTime date, int page, int size) {
+    public BasicResponse searchSims(String query, String operatorType, String status, Date date, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Specification<Sim> specification = (root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -342,7 +339,7 @@ public class SimService {
     }
 
     // Search SIMs by date range
-    public BasicResponse searchSimsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+    public BasicResponse searchSimsByDateRange(Date startDate, Date endDate) {
         List<Sim> sims = simRepository.findByAddDateBetween(startDate, endDate);
         if (sims.isEmpty()) {
             return BasicResponse.builder()
@@ -358,6 +355,94 @@ public class SimService {
                 .content(simDTOs)
                 .status(HttpStatus.OK)
                 .message("SIMs retrieved successfully")
+                .build();
+    }
+
+    // Count all non-installed SIMs
+    public BasicResponse countNonInstalledSims() {
+        long count = simRepository.countByStatus(SimStatus.PENDING);
+        return BasicResponse.builder()
+                .content(count)
+                .status(HttpStatus.OK)
+                .message("Non-installed SIMs count retrieved successfully")
+                .build();
+    }
+
+    // Get all non-installed SIMs with pagination
+    public BasicResponse getAllNonInstalledSims(int page, int size) {
+        Pageable pageRequest = PageRequest.of(page - 1, size);
+        Page<Sim> simPage = simRepository.findAllByStatus(SimStatus.PENDING, pageRequest);
+
+        List<SimBoitierDTO> simDTOs = simPage.getContent().stream()
+                .map(sim -> SimBoitierDTO.builder()
+                        .simMicroserviceId(sim.getId())
+                        .phoneNumber(sim.getPhoneNumber())
+                        .ccid(sim.getCcid())
+                        .build())
+                .collect(Collectors.toList());
+
+        MetaData metaData = MetaData.builder()
+                .currentPage(simPage.getNumber() + 1)
+                .totalPages(simPage.getTotalPages())
+                .size(simPage.getSize())
+                .build();
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("sims", simDTOs);
+        data.put("metadata", metaData);
+
+        if (simPage.isEmpty()) {
+            return BasicResponse.builder()
+                    .content(null)
+                    .status(HttpStatus.NOT_FOUND)
+                    .message("No non-installed SIMs found")
+                    .messageType(MessageType.ERROR)
+                    .build();
+        }
+        return BasicResponse.builder()
+                .content(data)
+                .status(HttpStatus.OK)
+                .message("Non-installed SIMs retrieved successfully")
+                .build();
+    }
+
+    // Search non-installed SIMs by phone number or CCID with pagination
+    public BasicResponse searchNonInstalledSims(String query, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Sim> simPage = simRepository.findAllByStatusAndPhoneNumberContainingOrCcidContaining(SimStatus.PENDING, query, pageable);
+
+        if (simPage.isEmpty()) {
+            return BasicResponse.builder()
+                    .content(null)
+                    .status(HttpStatus.NOT_FOUND)
+                    .message("No non-installed SIMs found")
+                    .messageType(MessageType.ERROR)
+                    .build();
+        }
+
+        List<SimBoitierDTO> simDTOs = simPage.getContent().stream()
+                .map(sim -> SimBoitierDTO.builder()
+                        .simMicroserviceId(sim.getId())
+                        .phoneNumber(sim.getPhoneNumber())
+                        .ccid(sim.getCcid())
+                        .build())
+                .collect(Collectors.toList());
+
+        MetaData metaData = MetaData.builder()
+                .currentPage(simPage.getNumber() + 1)
+                .totalPages(simPage.getTotalPages())
+                .size(simPage.getSize())
+                .build();
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("sims", simDTOs);
+        data.put("metadata", metaData);
+
+        return BasicResponse.builder()
+                .content(data)
+                .status(HttpStatus.OK)
+                .message("Non-installed SIMs retrieved successfully")
+                .messageType(MessageType.SUCCESS)
                 .build();
     }
 

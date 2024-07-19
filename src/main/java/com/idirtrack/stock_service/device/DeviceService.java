@@ -39,7 +39,8 @@ public class DeviceService {
     private final StockRepository stockRepository;
 
     // Save device
-    public BasicResponse createDevice(@Valid DeviceRequest deviceRequest, BindingResult bindingResult) throws BasicException {
+    public BasicResponse createDevice(@Valid DeviceRequest deviceRequest, BindingResult bindingResult)
+            throws BasicException {
 
         // Validate the request
         Map<String, String> errors = BasicValidation.getValidationsErrors(bindingResult);
@@ -95,7 +96,8 @@ public class DeviceService {
     }
 
     // Update device
-    public BasicResponse updateDevice(Long id, @Valid DeviceUpdateRequest deviceUpdateRequest, BindingResult bindingResult) throws BasicException {
+    public BasicResponse updateDevice(Long id, @Valid DeviceUpdateRequest deviceUpdateRequest,
+            BindingResult bindingResult) throws BasicException {
 
         // Validate the request
         Map<String, String> errors = BasicValidation.getValidationsErrors(bindingResult);
@@ -107,8 +109,8 @@ public class DeviceService {
                     .content(errors)
                     .build());
         }
-        Device existingDevice = deviceRepository.findById(id).orElseThrow(() ->
-                new BasicException(BasicResponse.builder()
+        Device existingDevice = deviceRepository.findById(id)
+                .orElseThrow(() -> new BasicException(BasicResponse.builder()
                         .content(null)
                         .message("Device not found")
                         .messageType(MessageType.ERROR)
@@ -409,8 +411,8 @@ public class DeviceService {
                 .message("Devices count retrieved successfully")
                 .build();
     }
-    //get all device  non installed  by pagination
-    
+    // get all device non installed by pagination
+
     public BasicResponse getAllDevicesNonInstalled(int page, int size) {
         // Create pagination
         Pageable pageRequest = PageRequest.of(page - 1, size);
@@ -453,7 +455,7 @@ public class DeviceService {
                 .build();
     }
 
-    //search device  non installed  by imei
+    // search device non installed by imei
     // Search non-installed devices by IMEI with pagination
     public BasicResponse searchNonInstalledDevices(String imei, int page, int size) {
         Pageable pageable = PageRequest.of(page -1 , size);
@@ -494,40 +496,9 @@ public class DeviceService {
                 .build();
     }
 
-    
-    
-    
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//this is the code before the in the device.java 
+// this is the code before the in the device.java
 
 // package com.idirtrack.stock_service.device;
 
@@ -561,394 +532,398 @@ public class DeviceService {
 // import java.util.List;
 // import org.springframework.data.jpa.domain.Specification;
 
-
 // @Service
 // @RequiredArgsConstructor
 // public class DeviceService {
 
-//     private final DeviceRepository deviceRepository;
-//     private final DeviceTypeRepository deviceTypeRepository;
-//     private final DeviceStockRepository deviceStockRepository;
-//     private final StockRepository stockRepository;
+// private final DeviceRepository deviceRepository;
+// private final DeviceTypeRepository deviceTypeRepository;
+// private final DeviceStockRepository deviceStockRepository;
+// private final StockRepository stockRepository;
 
-//     // Save device
-//     public BasicResponse createDevice(@Valid DeviceRequest deviceRequest, BindingResult bindingResult) throws BasicException {
+// // Save device
+// public BasicResponse createDevice(@Valid DeviceRequest deviceRequest,
+// BindingResult bindingResult) throws BasicException {
 
-//         // Validate the request
-//         Map<String, String> errors = BasicValidation.getValidationsErrors(bindingResult);
-//         if (!errors.isEmpty()) {
-//             throw new BasicException(BasicResponse.builder()
-//                     .status(HttpStatus.BAD_REQUEST)
-//                     .message("Invalid fields")
-//                     .messageType(MessageType.ERROR)
-//                     .content(errors)
-//                     .build());
-//         }
-
-//         // Check if the device already exists
-//        try {
-//             ifExists(deviceRequest.getImei());
-//         } catch (BasicException e) {
-//             throw new BasicException(BasicResponse.builder()
-//                     .status(HttpStatus.BAD_REQUEST)
-//                     .message("IMEI already exists")
-//                     .messageType(MessageType.ERROR)
-//                     .content(null)
-//                     .build());
-//         }
-
-//         //check if device type exists
-//         if (!deviceTypeRepository.existsByName(deviceRequest.getTypeDevice())) {
-//             throw new BasicException(BasicResponse.builder()
-//                     .status(HttpStatus.BAD_REQUEST)
-//                     .message("Device type not found")
-//                     .messageType(MessageType.ERROR)
-//                     .content(null)
-//                     .build());
-//         }
-
-//         // Transform the request to entity
-//         DeviceDTO deviceDTO = transformRequestDTO(deviceRequest);
-
-//         // Save the device entity
-//         Device device  = deviceRepository.save(transformResponseDTO(deviceDTO));
-
-
-
-//         //check if device stock exists and update it (add quantity)
-//         //check with device type and date
-//         updateDeviceStock(device);
-                
-
-        
-
-
-        
-//         // Return a success response
-//         return BasicResponse.builder()
-//                 .content(device)
-//                 .message("Device created successfully")
-//                 .messageType(MessageType.SUCCESS)
-//                 .status(HttpStatus.CREATED)
-//                 .redirectUrl(null)
-//                 .build();
-//     }
-
-//     // Update device
-//      // Update device
-//      public BasicResponse updateDevice(Long id, @Valid DeviceUpdateRequest deviceUpdateRequest, BindingResult bindingResult) throws BasicException {
-
-//         // Validate the request
-//         Map<String, String> errors = BasicValidation.getValidationsErrors(bindingResult);
-//         if (!errors.isEmpty()) {
-//             throw new BasicException(BasicResponse.builder()
-//                     .status(HttpStatus.BAD_REQUEST)
-//                     .message("Invalid fields")
-//                     .messageType(MessageType.ERROR)
-//                     .content(errors)
-//                     .build());
-//         }
-//         Device existingDevice = deviceRepository.findById(id).orElseThrow(() ->
-//         new BasicException(BasicResponse.builder()
-//                 .content(null)
-//                 .message("Device not found")
-//                 .messageType(MessageType.ERROR)
-//                 .status(HttpStatus.NOT_FOUND)
-//                 .build()));
-
-//         // Check if device type exists
-//         if (!deviceTypeRepository.existsByName(deviceUpdateRequest.getTypeDevice())) {
-//             throw new BasicException(BasicResponse.builder()
-//                     .status(HttpStatus.BAD_REQUEST)
-//                     .message("Device type not found")
-//                     .messageType(MessageType.ERROR)
-//                     .content(null)
-//                     .build());
-//         }
-
-//         existingDevice.setImei(deviceUpdateRequest.getImei());
-//         existingDevice.setDeviceType(deviceTypeRepository.findByName(deviceUpdateRequest.getTypeDevice()));
-//         existingDevice.setStatus(DeviceStatus.valueOf(deviceUpdateRequest.getStatus()));
-//         existingDevice.setRemarque(deviceUpdateRequest.getRemarque());
-//         existingDevice.setUpdatedAt( new Date(System.currentTimeMillis()));
-
-//         deviceRepository.save(existingDevice);
-
-//         return BasicResponse.builder()
-//                 .content(existingDevice)
-//                 .message("Device updated successfully")
-//                 .messageType(MessageType.SUCCESS)
-//                 .status(HttpStatus.OK)
-//                 .build();
+// // Validate the request
+// Map<String, String> errors =
+// BasicValidation.getValidationsErrors(bindingResult);
+// if (!errors.isEmpty()) {
+// throw new BasicException(BasicResponse.builder()
+// .status(HttpStatus.BAD_REQUEST)
+// .message("Invalid fields")
+// .messageType(MessageType.ERROR)
+// .content(errors)
+// .build());
 // }
-//     // Delete device
-//     public BasicResponse deleteDevice(Long id) throws BasicException {
-//         Device device = deviceRepository.findById(id).orElse(null);
-//         if (device == null) {
-//             throw new BasicException(BasicResponse.builder()
-//                     .content(null)
-//                     .message("Device not found")
-//                     .messageType(MessageType.ERROR)
-//                     .status(HttpStatus.NOT_FOUND)
-//                     .build());
-//         }
 
-//         // Update device stock on delete
-//         updateDeviceStockOnDelete(device);
+// // Check if the device already exists
+// try {
+// ifExists(deviceRequest.getImei());
+// } catch (BasicException e) {
+// throw new BasicException(BasicResponse.builder()
+// .status(HttpStatus.BAD_REQUEST)
+// .message("IMEI already exists")
+// .messageType(MessageType.ERROR)
+// .content(null)
+// .build());
+// }
 
-//         deviceRepository.delete(device);
+// //check if device type exists
+// if (!deviceTypeRepository.existsByName(deviceRequest.getTypeDevice())) {
+// throw new BasicException(BasicResponse.builder()
+// .status(HttpStatus.BAD_REQUEST)
+// .message("Device type not found")
+// .messageType(MessageType.ERROR)
+// .content(null)
+// .build());
+// }
 
-//         return BasicResponse.builder()
-//                 .message("Device deleted successfully")
-//                 .messageType(MessageType.SUCCESS)
-//                 .status(HttpStatus.OK)
-//                 .build();
-//     }
+// // Transform the request to entity
+// DeviceDTO deviceDTO = transformRequestDTO(deviceRequest);
 
-//     // Get device by ID
-//     public BasicResponse getDeviceById(Long id) throws BasicException {
-//        Device device = deviceRepository.findById(id).orElse(null);
-//         if (device == null) {
-//             throw new BasicException(BasicResponse.builder()
-//                     .content(null)
-//                     .message("Device not found")
-//                     .messageType(MessageType.ERROR)
-//                     .status(HttpStatus.NOT_FOUND)
-//                     .build());
-//         }
+// // Save the device entity
+// Device device = deviceRepository.save(transformResponseDTO(deviceDTO));
 
-//         return BasicResponse.builder()
-//                 .content(device)
-//                 .message("Device retrieved successfully")
-//                 .messageType(MessageType.SUCCESS)
-//                 .status(HttpStatus.OK)
-//                 .build();
-//     }
+// //check if device stock exists and update it (add quantity)
+// //check with device type and date
+// updateDeviceStock(device);
 
-//      // Get all devices with pagination
-//     public BasicResponse getAllDevices(int page, int size) {
-//         // Create pagination
-//         Pageable pageRequest = PageRequest.of(page - 1, size);
+// // Return a success response
+// return BasicResponse.builder()
+// .content(device)
+// .message("Device created successfully")
+// .messageType(MessageType.SUCCESS)
+// .status(HttpStatus.CREATED)
+// .redirectUrl(null)
+// .build();
+// }
 
-//         // Retrieve all devices from the database
-//         Page<Device> devicePage = deviceRepository.findAll(pageRequest);
+// // Update device
+// // Update device
+// public BasicResponse updateDevice(Long id, @Valid DeviceUpdateRequest
+// deviceUpdateRequest, BindingResult bindingResult) throws BasicException {
 
-//         // Create a list of DTOs for devices
-//         List<DeviceDTO> deviceDTOs = devicePage.getContent().stream()
-//                 .map(device -> DeviceDTO.builder().deviceType(device.getDeviceType().getName())
-//                         .id(device.getId())
-//                         .IMEI(device.getImei())
-//                         .remarque(device.getRemarque())
-//                         .status(device.getStatus())
-//                         .build())
-                        
-//                 .collect(Collectors.toList());
+// // Validate the request
+// Map<String, String> errors =
+// BasicValidation.getValidationsErrors(bindingResult);
+// if (!errors.isEmpty()) {
+// throw new BasicException(BasicResponse.builder()
+// .status(HttpStatus.BAD_REQUEST)
+// .message("Invalid fields")
+// .messageType(MessageType.ERROR)
+// .content(errors)
+// .build());
+// }
+// Device existingDevice = deviceRepository.findById(id).orElseThrow(() ->
+// new BasicException(BasicResponse.builder()
+// .content(null)
+// .message("Device not found")
+// .messageType(MessageType.ERROR)
+// .status(HttpStatus.NOT_FOUND)
+// .build()));
 
-//         MetaData metaData = MetaData.builder()
-//                 .currentPage(devicePage.getNumber() + 1)
-//                 .totalPages(devicePage.getTotalPages())
-//                 .size(devicePage.getSize())
-//                 .build();
+// // Check if device type exists
+// if (!deviceTypeRepository.existsByName(deviceUpdateRequest.getTypeDevice()))
+// {
+// throw new BasicException(BasicResponse.builder()
+// .status(HttpStatus.BAD_REQUEST)
+// .message("Device type not found")
+// .messageType(MessageType.ERROR)
+// .content(null)
+// .build());
+// }
 
-//         Map<String, Object> data = new HashMap<>();
-//         data.put("devices", deviceDTOs);
-//         data.put("metadata", metaData);
-//     //if device not found
-//         if (devicePage.isEmpty()) {
-//             return BasicResponse.builder()
-//                     .content(null)
-//                     .status(HttpStatus.NOT_FOUND)
-//                     .message("No devices found")
-//                     .messageType(MessageType.ERROR)
-//                     .build();
-//         }
-//         return BasicResponse.builder()
-//                 .content(data)
-//                 .status(HttpStatus.OK)
-//                 .message("Devices retrieved successfully")
-//                 .build();
-//     }
+// existingDevice.setImei(deviceUpdateRequest.getImei());
+// existingDevice.setDeviceType(deviceTypeRepository.findByName(deviceUpdateRequest.getTypeDevice()));
+// existingDevice.setStatus(DeviceStatus.valueOf(deviceUpdateRequest.getStatus()));
+// existingDevice.setRemarque(deviceUpdateRequest.getRemarque());
+// existingDevice.setUpdatedAt( new Date(System.currentTimeMillis()));
 
-//     // Search devices by name with pagination
+// deviceRepository.save(existingDevice);
 
-//     // Transform DTO to entity
-//     public Device transformResponseDTO(DeviceDTO deviceDTO) {
-        
-//         DeviceType deviceType = deviceTypeRepository.findByName(deviceDTO.getDeviceType());
-//         return Device.builder()
-//                 .imei(deviceDTO.getIMEI())
-//                 .createdAt(new Date(System.currentTimeMillis()))
-//                 .status(DeviceStatus.NON_INSTALLED)
-//                 .deviceType(deviceType)
-//                 .remarque(deviceDTO.getRemarque())
-//                 .build();
-//     }
+// return BasicResponse.builder()
+// .content(existingDevice)
+// .message("Device updated successfully")
+// .messageType(MessageType.SUCCESS)
+// .status(HttpStatus.OK)
+// .build();
+// }
+// // Delete device
+// public BasicResponse deleteDevice(Long id) throws BasicException {
+// Device device = deviceRepository.findById(id).orElse(null);
+// if (device == null) {
+// throw new BasicException(BasicResponse.builder()
+// .content(null)
+// .message("Device not found")
+// .messageType(MessageType.ERROR)
+// .status(HttpStatus.NOT_FOUND)
+// .build());
+// }
 
-//     // Transform requestUpdate to DTO
-//     public DeviceDTO transformRequestUpdateDTO(DeviceUpdateRequest deviceUpdateRequest) {
-//         return DeviceDTO.builder()
-//                 .IMEI(deviceUpdateRequest.getImei())
-//                 .deviceType(deviceUpdateRequest.getTypeDevice())
-//                 .remarque(deviceUpdateRequest.getRemarque())
-//                 .status(DeviceStatus.valueOf(deviceUpdateRequest.getStatus()))
-//                 .build();
-//     }
-  
-//     // Update device stock
-//     public void updateDeviceStock(Device device) {
-    
-//         List<Stock> stocks = stockRepository.findByDateEntree(device.getCreatedAt());
-//         Stock stock = null;
-//         DeviceStock deviceStock = null;
-    
-//         for (Stock s : stocks) {
-//             deviceStock = deviceStockRepository.findByStockAndDeviceType(s, device.getDeviceType());
-//             if (deviceStock != null) {
-//                 stock = s;
-//                 break;
-//             }
-//         }
-    
-//         if (stock == null) {
-//             stock = Stock.builder()
-//                     .dateEntree(device.getCreatedAt())
-//                     .quantity(1)
-//                     .build();
-//             stock = stockRepository.save(stock);
-    
-//             deviceStock = DeviceStock.builder()
-//                     .deviceType(device.getDeviceType())
-//                     .stock(stock)
-//                     .build();
-//             deviceStockRepository.save(deviceStock);
-//         } else {
-//             stock.setQuantity(stock.getQuantity() + 1);
-//             stockRepository.save(stock);
-//         }
-//     }
+// // Update device stock on delete
+// updateDeviceStockOnDelete(device);
 
-//     // Update device stock on delete
-//     private void updateDeviceStockOnDelete(Device device) {
+// deviceRepository.delete(device);
 
-//         List<Stock> stocks = stockRepository.findByDateEntree(device.getCreatedAt());
-//         Stock stock = null;
-//         DeviceStock deviceStock = null;
+// return BasicResponse.builder()
+// .message("Device deleted successfully")
+// .messageType(MessageType.SUCCESS)
+// .status(HttpStatus.OK)
+// .build();
+// }
 
-//         for (Stock s : stocks) {
-//             deviceStock = deviceStockRepository.findByStockAndDeviceType(s, device.getDeviceType());
-//             if (deviceStock != null) {
-//                 stock = s;
-//                 break;
-//             }
-//         }
+// // Get device by ID
+// public BasicResponse getDeviceById(Long id) throws BasicException {
+// Device device = deviceRepository.findById(id).orElse(null);
+// if (device == null) {
+// throw new BasicException(BasicResponse.builder()
+// .content(null)
+// .message("Device not found")
+// .messageType(MessageType.ERROR)
+// .status(HttpStatus.NOT_FOUND)
+// .build());
+// }
 
-//         if (stock != null) {
-//             stock.setQuantity(stock.getQuantity() - 1);
-//             stockRepository.save(stock);
+// return BasicResponse.builder()
+// .content(device)
+// .message("Device retrieved successfully")
+// .messageType(MessageType.SUCCESS)
+// .status(HttpStatus.OK)
+// .build();
+// }
 
-//             if (stock.getQuantity() <= 0) {
-//                 deviceStockRepository.delete(deviceStock);
-//                 stockRepository.delete(stock);
-//             }
-//         }
-//     }
-    
+// // Get all devices with pagination
+// public BasicResponse getAllDevices(int page, int size) {
+// // Create pagination
+// Pageable pageRequest = PageRequest.of(page - 1, size);
 
-//     // Transform request to DTO
-//     public DeviceDTO transformRequestDTO(DeviceRequest deviceRequest) {
-//         return DeviceDTO.builder()
-//                 .IMEI(deviceRequest.getImei())
-//                 .deviceType(deviceRequest.getTypeDevice())
-//                 .remarque(deviceRequest.getRemarque())
-//                 .build();
-//     }
+// // Retrieve all devices from the database
+// Page<Device> devicePage = deviceRepository.findAll(pageRequest);
 
-//     // Check if device with the given IMEI already exists
-//     public void ifExists(String n) throws BasicException {
-//         if (deviceRepository.existsByImei(n)) {
-//             Map<String, String> messagesList = new HashMap<>();
-//             messagesList.put("IMEI", "IMEI already exists");
-//             throw new BasicException(BasicResponse.builder()
-//                     .content(null)
-//                     .message("IMEI already exists")
-//                     .messagesList(messagesList)
-//                     .build());
-//         }
-//     }
+// // Create a list of DTOs for devices
+// List<DeviceDTO> deviceDTOs = devicePage.getContent().stream()
+// .map(device ->
+// DeviceDTO.builder().deviceType(device.getDeviceType().getName())
+// .id(device.getId())
+// .IMEI(device.getImei())
+// .remarque(device.getRemarque())
+// .status(device.getStatus())
+// .build())
 
-//     //search device with pagination
-    
-//     // Search devices with pagination
-//     public BasicResponse searchDevices(String imei, String typeDevice, String status, Date date, int page, int size) {
-//         Pageable pageable = PageRequest.of(page - 1, size);
+// .collect(Collectors.toList());
 
-//         Specification<Device> specification = (root, query, criteriaBuilder) -> {
-//             List<Predicate> predicates = new ArrayList<>();
+// MetaData metaData = MetaData.builder()
+// .currentPage(devicePage.getNumber() + 1)
+// .totalPages(devicePage.getTotalPages())
+// .size(devicePage.getSize())
+// .build();
 
-//             if (imei != null && !imei.isEmpty()) {
-//                 predicates.add(criteriaBuilder.equal(root.get("imei"), imei));
-//             }
+// Map<String, Object> data = new HashMap<>();
+// data.put("devices", deviceDTOs);
+// data.put("metadata", metaData);
+// //if device not found
+// if (devicePage.isEmpty()) {
+// return BasicResponse.builder()
+// .content(null)
+// .status(HttpStatus.NOT_FOUND)
+// .message("No devices found")
+// .messageType(MessageType.ERROR)
+// .build();
+// }
+// return BasicResponse.builder()
+// .content(data)
+// .status(HttpStatus.OK)
+// .message("Devices retrieved successfully")
+// .build();
+// }
 
-//             if (typeDevice != null && !typeDevice.isEmpty()) {
-//                 predicates.add(criteriaBuilder.equal(root.get("deviceType").get("name"), typeDevice));
-//             }
+// // Search devices by name with pagination
 
-//             if (status != null && !status.isEmpty()) {
-//                 predicates.add(criteriaBuilder.equal(root.get("status"), DeviceStatus.valueOf(status)));
-//             }
+// // Transform DTO to entity
+// public Device transformResponseDTO(DeviceDTO deviceDTO) {
 
-//             if (date != null) {
-//                 predicates.add(criteriaBuilder.equal(root.get("createdAt"), date));
-//             }
+// DeviceType deviceType =
+// deviceTypeRepository.findByName(deviceDTO.getDeviceType());
+// return Device.builder()
+// .imei(deviceDTO.getIMEI())
+// .createdAt(new Date(System.currentTimeMillis()))
+// .status(DeviceStatus.NON_INSTALLED)
+// .deviceType(deviceType)
+// .remarque(deviceDTO.getRemarque())
+// .build();
+// }
 
-//             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-//         };
+// // Transform requestUpdate to DTO
+// public DeviceDTO transformRequestUpdateDTO(DeviceUpdateRequest
+// deviceUpdateRequest) {
+// return DeviceDTO.builder()
+// .IMEI(deviceUpdateRequest.getImei())
+// .deviceType(deviceUpdateRequest.getTypeDevice())
+// .remarque(deviceUpdateRequest.getRemarque())
+// .status(DeviceStatus.valueOf(deviceUpdateRequest.getStatus()))
+// .build();
+// }
 
-//         Page<Device> devicePage = deviceRepository.findAll(specification, pageable);
-//         if (devicePage.isEmpty()) {
-//             return BasicResponse.builder()
-//                     .content(null)
-//                     .status(HttpStatus.NOT_FOUND)
-//                     .message("No devices found")
-//                     .messageType(MessageType.ERROR)
-//                     .build();
-//         }
+// // Update device stock
+// public void updateDeviceStock(Device device) {
 
-//         List<DeviceDTO> deviceDTOs = devicePage.getContent().stream()
-//                 .map(device -> DeviceDTO.builder()
-//                         .id(device.getId())
-//                         .IMEI(device.getImei())
-//                         .deviceType(device.getDeviceType().getName())
-//                         .remarque(device.getRemarque())
-//                         .status(device.getStatus())
-//                         .build())
-//                 .collect(Collectors.toList());
+// List<Stock> stocks = stockRepository.findByDateEntree(device.getCreatedAt());
+// Stock stock = null;
+// DeviceStock deviceStock = null;
 
-//         MetaData metaData = MetaData.builder()
-//                 .currentPage(devicePage.getNumber() + 1)
-//                 .totalPages(devicePage.getTotalPages())
-//                 .size(devicePage.getSize())
-//                 .build();
+// for (Stock s : stocks) {
+// deviceStock = deviceStockRepository.findByStockAndDeviceType(s,
+// device.getDeviceType());
+// if (deviceStock != null) {
+// stock = s;
+// break;
+// }
+// }
 
-//         Map<String, Object> data = new HashMap<>();
-//         data.put("devices", deviceDTOs);
-//         data.put("metadata", metaData);
+// if (stock == null) {
+// stock = Stock.builder()
+// .dateEntree(device.getCreatedAt())
+// .quantity(1)
+// .build();
+// stock = stockRepository.save(stock);
 
-//         return BasicResponse.builder()
-//                 .content(data)
-//                 .status(HttpStatus.OK)
-//                 .message("Devices retrieved successfully")
-//                 .build();
-//     }
+// deviceStock = DeviceStock.builder()
+// .deviceType(device.getDeviceType())
+// .stock(stock)
+// .build();
+// deviceStockRepository.save(deviceStock);
+// } else {
+// stock.setQuantity(stock.getQuantity() + 1);
+// stockRepository.save(stock);
+// }
+// }
 
-//     //count all devices have status non installed
-//     public BasicResponse countDevicesNonInstalled() {
-//         long count = deviceRepository.countByStatus(DeviceStatus.NON_INSTALLED);
-//         return BasicResponse.builder()
-//                 .content(count)
-//                 .status(HttpStatus.OK)
-//                 .message("Devices count retrieved successfully")
-//                 .build();
-//     }
+// // Update device stock on delete
+// private void updateDeviceStockOnDelete(Device device) {
+
+// List<Stock> stocks = stockRepository.findByDateEntree(device.getCreatedAt());
+// Stock stock = null;
+// DeviceStock deviceStock = null;
+
+// for (Stock s : stocks) {
+// deviceStock = deviceStockRepository.findByStockAndDeviceType(s,
+// device.getDeviceType());
+// if (deviceStock != null) {
+// stock = s;
+// break;
+// }
+// }
+
+// if (stock != null) {
+// stock.setQuantity(stock.getQuantity() - 1);
+// stockRepository.save(stock);
+
+// if (stock.getQuantity() <= 0) {
+// deviceStockRepository.delete(deviceStock);
+// stockRepository.delete(stock);
+// }
+// }
+// }
+
+// // Transform request to DTO
+// public DeviceDTO transformRequestDTO(DeviceRequest deviceRequest) {
+// return DeviceDTO.builder()
+// .IMEI(deviceRequest.getImei())
+// .deviceType(deviceRequest.getTypeDevice())
+// .remarque(deviceRequest.getRemarque())
+// .build();
+// }
+
+// // Check if device with the given IMEI already exists
+// public void ifExists(String n) throws BasicException {
+// if (deviceRepository.existsByImei(n)) {
+// Map<String, String> messagesList = new HashMap<>();
+// messagesList.put("IMEI", "IMEI already exists");
+// throw new BasicException(BasicResponse.builder()
+// .content(null)
+// .message("IMEI already exists")
+// .messagesList(messagesList)
+// .build());
+// }
+// }
+
+// //search device with pagination
+
+// // Search devices with pagination
+// public BasicResponse searchDevices(String imei, String typeDevice, String
+// status, Date date, int page, int size) {
+// Pageable pageable = PageRequest.of(page - 1, size);
+
+// Specification<Device> specification = (root, query, criteriaBuilder) -> {
+// List<Predicate> predicates = new ArrayList<>();
+
+// if (imei != null && !imei.isEmpty()) {
+// predicates.add(criteriaBuilder.equal(root.get("imei"), imei));
+// }
+
+// if (typeDevice != null && !typeDevice.isEmpty()) {
+// predicates.add(criteriaBuilder.equal(root.get("deviceType").get("name"),
+// typeDevice));
+// }
+
+// if (status != null && !status.isEmpty()) {
+// predicates.add(criteriaBuilder.equal(root.get("status"),
+// DeviceStatus.valueOf(status)));
+// }
+
+// if (date != null) {
+// predicates.add(criteriaBuilder.equal(root.get("createdAt"), date));
+// }
+
+// return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+// };
+
+// Page<Device> devicePage = deviceRepository.findAll(specification, pageable);
+// if (devicePage.isEmpty()) {
+// return BasicResponse.builder()
+// .content(null)
+// .status(HttpStatus.NOT_FOUND)
+// .message("No devices found")
+// .messageType(MessageType.ERROR)
+// .build();
+// }
+
+// List<DeviceDTO> deviceDTOs = devicePage.getContent().stream()
+// .map(device -> DeviceDTO.builder()
+// .id(device.getId())
+// .IMEI(device.getImei())
+// .deviceType(device.getDeviceType().getName())
+// .remarque(device.getRemarque())
+// .status(device.getStatus())
+// .build())
+// .collect(Collectors.toList());
+
+// MetaData metaData = MetaData.builder()
+// .currentPage(devicePage.getNumber() + 1)
+// .totalPages(devicePage.getTotalPages())
+// .size(devicePage.getSize())
+// .build();
+
+// Map<String, Object> data = new HashMap<>();
+// data.put("devices", deviceDTOs);
+// data.put("metadata", metaData);
+
+// return BasicResponse.builder()
+// .content(data)
+// .status(HttpStatus.OK)
+// .message("Devices retrieved successfully")
+// .build();
+// }
+
+// //count all devices have status non installed
+// public BasicResponse countDevicesNonInstalled() {
+// long count = deviceRepository.countByStatus(DeviceStatus.NON_INSTALLED);
+// return BasicResponse.builder()
+// .content(count)
+// .status(HttpStatus.OK)
+// .message("Devices count retrieved successfully")
+// .build();
+// }
 // }
 

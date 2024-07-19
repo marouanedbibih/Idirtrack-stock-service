@@ -1,56 +1,46 @@
 package com.idirtrack.stock_service.sim;
 
-import java.time.LocalDateTime;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import com.idirtrack.stock_service.stock.Stock;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Date;
+
 @Entity
-@Table(name = "sim")
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "sim")
 public class Sim {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "pin", nullable = false)
     private String pin;
 
-    @Column(nullable = false)
+    @Column(name = "puk", nullable = false)
     private String puk;
 
-    @Column(nullable = false, length = 18)
+    @Column(name = "ccid", nullable = false, unique = true)
     private String ccid;
 
-    @Enumerated(EnumType.STRING)
-    private SimStatus status;
-
-    private String phoneNumber;
-
-    private LocalDateTime addDate;
-
     @ManyToOne
-    @JoinColumn(name = "sim_type_name", nullable = false)
+    @JoinColumn(name = "sim_type_id")
     private SimType simType;
 
-    @Transient
-    public String getOperatorType() {
-        return this.simType != null ? this.simType.getType() : null;
-    }
+    @Column(name = "phone_number", nullable = false)
+    private String phoneNumber;
+
+    @Column(name = "add_date", nullable = false)
+    private Date addDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private SimStatus status;
 }
