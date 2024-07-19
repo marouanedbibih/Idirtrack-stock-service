@@ -21,7 +21,7 @@ public class StockController {
     public ResponseEntity<BasicResponse> getAllStocks() {
         List<Stock> stocks = stockService.getAllStocks();
         return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.builder()
-                .data(stocks)
+                .content(stocks)
                 .message("Stocks retrieved successfully")
                 .status(HttpStatus.OK)
                 .build());

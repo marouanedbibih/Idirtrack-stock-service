@@ -30,7 +30,7 @@ public class DeviceTypeService {
         Map<String, String> messagesList = BasicValidation.getValidationsErrors(bindingResult);
         if (!messagesList.isEmpty()) {
             throw new BasicException(BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .message("Validation Error")
                     .messagesList(messagesList)
                     .messageType(MessageType.ERROR)
@@ -54,7 +54,7 @@ public class DeviceTypeService {
 
         // Return a success response
         return BasicResponse.builder()
-                .data(deviceType)
+                .content(deviceType)
                 .message("Device type created successfully")
                 .messageType(MessageType.SUCCESS)
                 .status(HttpStatus.CREATED)
@@ -68,7 +68,7 @@ public class DeviceTypeService {
             Map<String, String> messagesList = new HashMap<>();
             messagesList.put("name", "Device type with this name already exists");
             throw new BasicException(BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .message("Device type already exists")
                     .messagesList(messagesList)
                     .messageType(MessageType.ERROR)
