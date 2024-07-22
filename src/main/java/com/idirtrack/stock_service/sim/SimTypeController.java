@@ -11,6 +11,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/TypeStock-api/sim-type")
@@ -26,6 +27,55 @@ public class SimTypeController {
             return ResponseEntity.status(response.getStatus()).body(response);
         } catch (BasicException e) {
             return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
+                    .content(null)
+                    .message(e.getMessage())
+                    .messageType(MessageType.ERROR)
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build());
+        }
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<BasicResponse> createSimTypes(@Valid @RequestBody List<SimTypeRequest> simTypeRequests, BindingResult bindingResult) {
+        try {
+            BasicResponse response = simTypeService.createSimTypes(simTypeRequests, bindingResult);
+            return ResponseEntity.status(response.getStatus()).body(response);
+        } catch (BasicException e) {
+            return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
+                    .content(null)
+                    .message(e.getMessage())
+                    .messageType(MessageType.ERROR)
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build());
+        }
+    }
+
+    @PutMapping("/{name}")
+    public ResponseEntity<BasicResponse> updateSimType(@PathVariable String name, @Valid @RequestBody SimTypeRequest simTypeRequest, BindingResult bindingResult) {
+        try {
+            BasicResponse response = simTypeService.updateSimType(name, simTypeRequest, bindingResult);
+            return ResponseEntity.status(response.getStatus()).body(response);
+        } catch (BasicException e) {
+            return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
+                    .content(null)
+                    .message(e.getMessage())
+                    .messageType(MessageType.ERROR)
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build());
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<BasicResponse> deleteSimTypes(@RequestParam List<String> names) {
+        try {
+            BasicResponse response = simTypeService.deleteSimTypes(names);
+            return ResponseEntity.status(response.getStatus()).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
                     .content(null)
