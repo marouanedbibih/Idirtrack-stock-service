@@ -2,6 +2,7 @@ package com.idirtrack.stock_service.device;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,16 +14,14 @@ import com.idirtrack.stock_service.basics.BasicResponse;
 import com.idirtrack.stock_service.basics.BasicValidation;
 import com.idirtrack.stock_service.basics.MessageType;
 import com.idirtrack.stock_service.device.https.DeviceTypeRequest;
-import java.util.List;
 
 import jakarta.validation.Valid;
 
 @Service
 public class DeviceTypeService {
-  
 
-  @Autowired
-    private  DeviceTypeRepository deviceTypeRepository;
+    @Autowired
+    private DeviceTypeRepository deviceTypeRepository;
 
     // Save device type
     public BasicResponse createDeviceType(@Valid DeviceTypeRequest request, BindingResult bindingResult) throws BasicException {
@@ -30,12 +29,13 @@ public class DeviceTypeService {
         Map<String, String> messagesList = BasicValidation.getValidationsErrors(bindingResult);
         if (!messagesList.isEmpty()) {
             throw new BasicException(BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .message("Validation Error")
                     .messagesList(messagesList)
                     .messageType(MessageType.ERROR)
                     .status(HttpStatus.BAD_REQUEST)
                     .redirectUrl(null)
+                    .metadata(null)
                     .build());
         }
 
@@ -54,11 +54,12 @@ public class DeviceTypeService {
 
         // Return a success response
         return BasicResponse.builder()
-                .data(deviceType)
+                .content(deviceType)
                 .message("Device type created successfully")
                 .messageType(MessageType.SUCCESS)
                 .status(HttpStatus.CREATED)
                 .redirectUrl("/device-types")
+                .metadata(null)
                 .build();
     }
 
@@ -68,12 +69,13 @@ public class DeviceTypeService {
             Map<String, String> messagesList = new HashMap<>();
             messagesList.put("name", "Device type with this name already exists");
             throw new BasicException(BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .message("Device type already exists")
                     .messagesList(messagesList)
                     .messageType(MessageType.ERROR)
                     .status(HttpStatus.BAD_REQUEST)
                     .redirectUrl(null)
+                    .metadata(null)
                     .build());
         }
     }
@@ -82,11 +84,11 @@ public class DeviceTypeService {
     private DeviceType transformResponseDTO(DeviceTypeRequest request) {
         return DeviceType.builder()
                 .name(request.getName())
-                // Set other fields if necessary
                 .build();
     }
-    //get all device types
+
+    // Get all device types
     public List<DeviceType> getAllDeviceTypes() {
         return deviceTypeRepository.findAll();
-    }    
+    }
 }

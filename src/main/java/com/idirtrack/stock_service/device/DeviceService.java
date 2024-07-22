@@ -48,7 +48,8 @@ public class DeviceService {
                     .status(HttpStatus.BAD_REQUEST)
                     .message("Invalid fields")
                     .messageType(MessageType.ERROR)
-                    .data(errors)
+                    .content(errors)
+                    .metadata(null)
                     .build());
         }
 
@@ -60,7 +61,8 @@ public class DeviceService {
                     .status(HttpStatus.BAD_REQUEST)
                     .message("IMEI already exists")
                     .messageType(MessageType.ERROR)
-                    .data(null)
+                    .content(null)
+                    .metadata(null)
                     .build());
         }
 
@@ -70,7 +72,8 @@ public class DeviceService {
                     .status(HttpStatus.BAD_REQUEST)
                     .message("Device type not found")
                     .messageType(MessageType.ERROR)
-                    .data(null)
+                    .content(null)
+                    .metadata(null)
                     .build());
         }
 
@@ -86,11 +89,12 @@ public class DeviceService {
 
         // Return a success response
         return BasicResponse.builder()
-                .data(device)
+                .content(device)
                 .message("Device created successfully")
                 .messageType(MessageType.SUCCESS)
                 .status(HttpStatus.CREATED)
                 .redirectUrl(null)
+                .metadata(null)
                 .build();
     }
 
@@ -104,15 +108,17 @@ public class DeviceService {
                     .status(HttpStatus.BAD_REQUEST)
                     .message("Invalid fields")
                     .messageType(MessageType.ERROR)
-                    .data(errors)
+                    .content(errors)
+                    .metadata(null)
                     .build());
         }
         Device existingDevice = deviceRepository.findById(id).orElseThrow(() ->
                 new BasicException(BasicResponse.builder()
-                        .data(null)
+                        .content(null)
                         .message("Device not found")
                         .messageType(MessageType.ERROR)
                         .status(HttpStatus.NOT_FOUND)
+                        .metadata(null)
                         .build()));
 
         // Check if device type exists
@@ -121,7 +127,8 @@ public class DeviceService {
                     .status(HttpStatus.BAD_REQUEST)
                     .message("Device type not found")
                     .messageType(MessageType.ERROR)
-                    .data(null)
+                    .content(null)
+                    .metadata(null)
                     .build());
         }
 
@@ -134,10 +141,11 @@ public class DeviceService {
         deviceRepository.save(existingDevice);
 
         return BasicResponse.builder()
-                .data(existingDevice)
+                .content(existingDevice)
                 .message("Device updated successfully")
                 .messageType(MessageType.SUCCESS)
                 .status(HttpStatus.OK)
+                .metadata(null)
                 .build();
     }
 
@@ -146,10 +154,11 @@ public class DeviceService {
         Device device = deviceRepository.findById(id).orElse(null);
         if (device == null) {
             throw new BasicException(BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .message("Device not found")
                     .messageType(MessageType.ERROR)
                     .status(HttpStatus.NOT_FOUND)
+                    .metadata(null)
                     .build());
         }
 
@@ -162,6 +171,7 @@ public class DeviceService {
                 .message("Device deleted successfully")
                 .messageType(MessageType.SUCCESS)
                 .status(HttpStatus.OK)
+                .metadata(null)
                 .build();
     }
 
@@ -170,18 +180,20 @@ public class DeviceService {
         Device device = deviceRepository.findById(id).orElse(null);
         if (device == null) {
             throw new BasicException(BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .message("Device not found")
                     .messageType(MessageType.ERROR)
                     .status(HttpStatus.NOT_FOUND)
+                    .metadata(null)
                     .build());
         }
 
         return BasicResponse.builder()
-                .data(device)
+                .content(device)
                 .message("Device retrieved successfully")
                 .messageType(MessageType.SUCCESS)
                 .status(HttpStatus.OK)
+                .metadata(null)
                 .build();
     }
 
@@ -201,7 +213,6 @@ public class DeviceService {
                         .remarque(device.getRemarque())
                         .status(device.getStatus())
                         .build())
-
                 .collect(Collectors.toList());
 
         MetaData metaData = MetaData.builder()
@@ -213,27 +224,27 @@ public class DeviceService {
         Map<String, Object> data = new HashMap<>();
         data.put("devices", deviceDTOs);
         data.put("metadata", metaData);
+
         // if device not found
         if (devicePage.isEmpty()) {
             return BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .status(HttpStatus.NOT_FOUND)
                     .message("No devices found")
                     .messageType(MessageType.ERROR)
+                    .metadata(null)
                     .build();
         }
         return BasicResponse.builder()
-                .data(data)
+                .content(data)
                 .status(HttpStatus.OK)
                 .message("Devices retrieved successfully")
+                .metadata(metaData)
                 .build();
     }
 
-    // Search devices by name with pagination
-
     // Transform DTO to entity
     public Device transformResponseDTO(DeviceDTO deviceDTO) {
-
         DeviceType deviceType = deviceTypeRepository.findByName(deviceDTO.getDeviceType());
         return Device.builder()
                 .imei(deviceDTO.getIMEI())
@@ -256,7 +267,6 @@ public class DeviceService {
 
     // Update device stock
     public void updateDeviceStock(Device device) {
-
         List<Stock> stocks = stockRepository.findByDateEntree(device.getCreatedAt());
         Stock stock = null;
         DeviceStock deviceStock = null;
@@ -289,7 +299,6 @@ public class DeviceService {
 
     // Update device stock on delete
     private void updateDeviceStockOnDelete(Device device) {
-
         List<Stock> stocks = stockRepository.findByDateEntree(device.getCreatedAt());
         Stock stock = null;
         DeviceStock deviceStock = null;
@@ -328,14 +337,12 @@ public class DeviceService {
             Map<String, String> messagesList = new HashMap<>();
             messagesList.put("IMEI", "IMEI already exists");
             throw new BasicException(BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .message("IMEI already exists")
                     .messagesList(messagesList)
                     .build());
         }
     }
-
-    // Search device with pagination
 
     // Search devices with pagination
     public BasicResponse searchDevices(String imei, String typeDevice, String status, Date date, int page, int size) {
@@ -366,10 +373,11 @@ public class DeviceService {
         Page<Device> devicePage = deviceRepository.findAll(specification, pageable);
         if (devicePage.isEmpty()) {
             return BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .status(HttpStatus.NOT_FOUND)
                     .message("No devices found")
                     .messageType(MessageType.ERROR)
+                    .metadata(null)
                     .build();
         }
 
@@ -394,9 +402,10 @@ public class DeviceService {
         data.put("metadata", metaData);
 
         return BasicResponse.builder()
-                .data(data)
+                .content(data)
                 .status(HttpStatus.OK)
                 .message("Devices retrieved successfully")
+                .metadata(metaData)
                 .build();
     }
 
@@ -404,13 +413,14 @@ public class DeviceService {
     public BasicResponse countDevicesNonInstalled() {
         long count = deviceRepository.countByStatus(DeviceStatus.NON_INSTALLED);
         return BasicResponse.builder()
-                .data(count)
+                .content(count)
                 .status(HttpStatus.OK)
                 .message("Devices count retrieved successfully")
+                .metadata(null)
                 .build();
     }
-    //get all device  non installed  by pagination
-    
+
+    // Get all device non installed by pagination
     public BasicResponse getAllDevicesNonInstalled(int page, int size) {
         // Create pagination
         Pageable pageRequest = PageRequest.of(page - 1, size);
@@ -424,7 +434,6 @@ public class DeviceService {
                         .deviceMicroserviceId(device.getId())
                         .imei(device.getImei())
                         .build())
-
                 .collect(Collectors.toList());
 
         MetaData metaData = MetaData.builder()
@@ -436,34 +445,37 @@ public class DeviceService {
         Map<String, Object> data = new HashMap<>();
         data.put("devices", deviceDTOs);
         data.put("metadata", metaData);
+
         // if device not found
         if (devicePage.isEmpty()) {
             return BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .status(HttpStatus.NOT_FOUND)
                     .message("No devices found")
                     .messageType(MessageType.ERROR)
+                    .metadata(null)
                     .build();
         }
         return BasicResponse.builder()
-                .data(data)
+                .content(data)
                 .status(HttpStatus.OK)
                 .message("Devices retrieved successfully")
+                .metadata(metaData)
                 .build();
     }
 
-    //search device  non installed  by imei
     // Search non-installed devices by IMEI with pagination
     public BasicResponse searchNonInstalledDevices(String imei, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Device> devicePage = deviceRepository.findAllByStatusAndImeiContaining( DeviceStatus.NON_INSTALLED,imei, pageable);
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Device> devicePage = deviceRepository.findAllByStatusAndImeiContaining(DeviceStatus.NON_INSTALLED, imei, pageable);
 
         if (devicePage.isEmpty()) {
             return BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .status(HttpStatus.NOT_FOUND)
                     .message("No non-installed devices found")
                     .messageType(MessageType.ERROR)
+                    .metadata(null)
                     .build();
         }
 
@@ -485,14 +497,11 @@ public class DeviceService {
         data.put("metadata", metaData);
 
         return BasicResponse.builder()
-                .data(data)
+                .content(data)
                 .status(HttpStatus.OK)
                 .message("Non-installed devices retrieved successfully")
                 .messageType(MessageType.SUCCESS)
+                .metadata(metaData)
                 .build();
     }
-
-    
-    
-    
 }

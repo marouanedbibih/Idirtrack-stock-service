@@ -1,5 +1,8 @@
 package com.idirtrack.stock_service.sim;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -11,7 +14,8 @@ import com.idirtrack.stock_service.basics.BasicValidation;
 import com.idirtrack.stock_service.basics.MessageType;
 import com.idirtrack.stock_service.sim.https.SimTypeRequest;
 
-import java.util.Map;
+import java.util.List;
+import jakarta.validation.Valid;
 
 @Service
 public class SimTypeService {
@@ -19,12 +23,12 @@ public class SimTypeService {
     @Autowired
     private SimTypeRepository simTypeRepository;
 
-    public BasicResponse createSimType(SimTypeRequest request, BindingResult bindingResult) throws BasicException {
+    public BasicResponse createSimType(@Valid SimTypeRequest request, BindingResult bindingResult) throws BasicException {
         // Validate the request
         Map<String, String> messagesList = BasicValidation.getValidationsErrors(bindingResult);
         if (!messagesList.isEmpty()) {
             throw new BasicException(BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .message("Validation Error")
                     .messagesList(messagesList)
                     .messageType(MessageType.ERROR)
@@ -37,7 +41,7 @@ public class SimTypeService {
         if (simTypeRepository.existsByType(request.getType())) {
             messagesList.put("type", "SIM type with this name already exists");
             throw new BasicException(BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .message("SIM type already exists")
                     .messagesList(messagesList)
                     .messageType(MessageType.ERROR)
@@ -56,11 +60,15 @@ public class SimTypeService {
 
         // Return a success response
         return BasicResponse.builder()
-                .data(simType)
+                .content(simType)
                 .message("SIM type created successfully")
                 .messageType(MessageType.SUCCESS)
                 .status(HttpStatus.CREATED)
                 .redirectUrl("/sim-types")
                 .build();
+    }
+
+    public List<SimType> getAllSimTypes() {
+        return simTypeRepository.findAll();
     }
 }

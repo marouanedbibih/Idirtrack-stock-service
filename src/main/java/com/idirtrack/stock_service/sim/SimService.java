@@ -40,7 +40,7 @@ public class SimService {
     private void handleBindingErrors(BindingResult bindingResult) throws BasicException {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = BasicValidation.getValidationsErrors(bindingResult);
-            throw new BasicException(new BasicResponse(null, "Validation error", errors, MessageType.ERROR, null, HttpStatus.BAD_REQUEST));
+            throw new BasicException(new BasicResponse(null, "Validation error", errors, MessageType.ERROR, null, HttpStatus.BAD_REQUEST, null));
         }
     }
 
@@ -56,11 +56,11 @@ public class SimService {
             if (simRepository.existsByPhoneNumber(simRequest.getPhoneNumber())) {
                 messagesList.put("PhoneNumber", "Phone number already exists");
             }
-            throw new BasicException(new BasicResponse(null, "Phone number or CCID already exists", messagesList, MessageType.ERROR, null, HttpStatus.CONFLICT));
+            throw new BasicException(new BasicResponse(null, "Phone number or CCID already exists", messagesList, MessageType.ERROR, null, HttpStatus.CONFLICT, null));
         }
 
         SimType simType = simTypeRepository.findByType(simRequest.getSimType())
-                .orElseThrow(() -> new BasicException(new BasicResponse(null, "SIM type not found", null, MessageType.ERROR, null, HttpStatus.BAD_REQUEST)));
+                .orElseThrow(() -> new BasicException(new BasicResponse(null, "SIM type not found", null, MessageType.ERROR, null, HttpStatus.BAD_REQUEST, null)));
 
         Sim sim = Sim.builder()
                 .pin(simRequest.getPin())
@@ -75,7 +75,7 @@ public class SimService {
         simRepository.save(sim);
         updateSimStock(sim);
 
-        return new BasicResponse(transformEntityToDTO(sim), "SIM created successfully", null, MessageType.SUCCESS, null, HttpStatus.CREATED);
+        return new BasicResponse(transformEntityToDTO(sim), "SIM created successfully", null, MessageType.SUCCESS, null, HttpStatus.CREATED, null);
     }
 
     // Update SIM stock
@@ -115,17 +115,17 @@ public class SimService {
         handleBindingErrors(bindingResult);
 
         Sim existingSim = simRepository.findById(id).orElseThrow(() ->
-                new BasicException(new BasicResponse(null, "SIM not found", null, MessageType.ERROR, null, HttpStatus.NOT_FOUND)));
+                new BasicException(new BasicResponse(null, "SIM not found", null, MessageType.ERROR, null, HttpStatus.NOT_FOUND, null)));
 
         SimType simType = simTypeRepository.findByType(simUpdateRequest.getSimType())
-                .orElseThrow(() -> new BasicException(new BasicResponse(null, "SIM type not found", null, MessageType.ERROR, null, HttpStatus.BAD_REQUEST)));
+                .orElseThrow(() -> new BasicException(new BasicResponse(null, "SIM type not found", null, MessageType.ERROR, null, HttpStatus.BAD_REQUEST, null)));
 
         if (!existingSim.getPhoneNumber().equals(simUpdateRequest.getPhoneNumber()) && simRepository.existsByPhoneNumber(simUpdateRequest.getPhoneNumber())) {
-            throw new BasicException(new BasicResponse(null, "Phone number already exists", null, MessageType.ERROR, null, HttpStatus.CONFLICT));
+            throw new BasicException(new BasicResponse(null, "Phone number already exists", null, MessageType.ERROR, null, HttpStatus.CONFLICT, null));
         }
 
         if (!existingSim.getCcid().equals(simUpdateRequest.getCcid()) && simRepository.existsByCcid(simUpdateRequest.getCcid())) {
-            throw new BasicException(new BasicResponse(null, "CCID already exists", null, MessageType.ERROR, null, HttpStatus.CONFLICT));
+            throw new BasicException(new BasicResponse(null, "CCID already exists", null, MessageType.ERROR, null, HttpStatus.CONFLICT, null));
         }
 
         existingSim.setPin(simUpdateRequest.getPin());
@@ -136,28 +136,28 @@ public class SimService {
         existingSim.setPhoneNumber(simUpdateRequest.getPhoneNumber());
 
         simRepository.save(existingSim);
-        return new BasicResponse(transformEntityToDTO(existingSim), "SIM updated successfully", null, MessageType.SUCCESS, null, HttpStatus.OK);
+        return new BasicResponse(transformEntityToDTO(existingSim), "SIM updated successfully", null, MessageType.SUCCESS, null, HttpStatus.OK, null);
     }
 
     // Update SIM status
     public BasicResponse updateSimStatus(Long id, SimStatus status) throws BasicException {
         Sim sim = simRepository.findById(id).orElseThrow(() ->
-                new BasicException(new BasicResponse(null, "SIM not found", null, MessageType.ERROR, null, HttpStatus.NOT_FOUND)));
+                new BasicException(new BasicResponse(null, "SIM not found", null, MessageType.ERROR, null, HttpStatus.NOT_FOUND, null)));
 
         sim.setStatus(status);
         simRepository.save(sim);
-        return new BasicResponse(transformEntityToDTO(sim), "SIM status updated successfully", null, MessageType.SUCCESS, null, HttpStatus.OK);
+        return new BasicResponse(transformEntityToDTO(sim), "SIM status updated successfully", null, MessageType.SUCCESS, null, HttpStatus.OK, null);
     }
 
     // Delete SIM
     public BasicResponse deleteSim(Long id) throws BasicException {
         Sim sim = simRepository.findById(id).orElseThrow(() ->
-                new BasicException(new BasicResponse(null, "SIM not found", null, MessageType.ERROR, null, HttpStatus.NOT_FOUND)));
+                new BasicException(new BasicResponse(null, "SIM not found", null, MessageType.ERROR, null, HttpStatus.NOT_FOUND, null)));
 
         updateSimStockOnDelete(sim);
         simRepository.delete(sim);
 
-        return new BasicResponse(null, "SIM deleted successfully", null, MessageType.SUCCESS, null, HttpStatus.OK);
+        return new BasicResponse(null, "SIM deleted successfully", null, MessageType.SUCCESS, null, HttpStatus.OK, null);
     }
 
     // Update SIM stock on delete
@@ -188,9 +188,8 @@ public class SimService {
     // Get SIM by ID
     public BasicResponse getSimById(Long id) throws BasicException {
         Sim sim = simRepository.findById(id).orElseThrow(() ->
-                new BasicException(new BasicResponse(null, "SIM not found", null, MessageType.ERROR, null, HttpStatus.NOT_FOUND)));
-
-        return new BasicResponse(transformEntityToDTO(sim), "SIM retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK);
+                new BasicException(new BasicResponse(null, "SIM not found", null, MessageType.ERROR, null, HttpStatus.NOT_FOUND, null)));
+        return new BasicResponse(transformEntityToDTO(sim), "SIM retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK, null);
     }
 
     // Get all SIMs with pagination
@@ -206,7 +205,7 @@ public class SimService {
         Map<String, Object> data = new HashMap<>();
         data.put("sims", simDTOs);
         data.put("metadata", metaData);
-        return new BasicResponse(data, "SIMs retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK);
+        return new BasicResponse(data, "SIMs retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK, metaData);
     }
 
     // Search SIMs with pagination
@@ -236,7 +235,7 @@ public class SimService {
 
         Page<Sim> simPage = simRepository.findAll(specification, pageable);
         if (simPage.isEmpty()) {
-            return new BasicResponse(null, "No SIMs found", null, MessageType.ERROR, null, HttpStatus.NOT_FOUND);
+            return new BasicResponse(null, "No SIMs found", null, MessageType.ERROR, null, HttpStatus.NOT_FOUND, null);
         }
 
         List<SimDTO> simDTOs = simPage.getContent().stream().map(this::transformEntityToDTO).collect(Collectors.toList());
@@ -248,24 +247,24 @@ public class SimService {
         Map<String, Object> data = new HashMap<>();
         data.put("sims", simDTOs);
         data.put("metadata", metaData);
-        return new BasicResponse(data, "SIMs retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK);
+        return new BasicResponse(data, "SIMs retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK, metaData);
     }
 
     // Search SIMs by date range
     public BasicResponse searchSimsByDateRange(Date startDate, Date endDate) {
         List<Sim> sims = simRepository.findByAddDateBetween(startDate, endDate);
         if (sims.isEmpty()) {
-            return new BasicResponse(null, "No SIMs found in the specified date range", null, MessageType.ERROR, null, HttpStatus.NOT_FOUND);
+            return new BasicResponse(null, "No SIMs found in the specified date range", null, MessageType.ERROR, null, HttpStatus.NOT_FOUND, null);
         }
 
         List<SimDTO> simDTOs = sims.stream().map(this::transformEntityToDTO).collect(Collectors.toList());
-        return new BasicResponse(simDTOs, "SIMs retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK);
+        return new BasicResponse(simDTOs, "SIMs retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK, null);
     }
 
     // Count all non-installed SIMs
     public BasicResponse countNonInstalledSims() {
         long count = simRepository.countByStatus(SimStatus.PENDING);
-        return new BasicResponse(count, "Non-installed SIMs count retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK);
+        return new BasicResponse(count, "Non-installed SIMs count retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK, null);
     }
 
     // Get all non-installed SIMs with pagination
@@ -291,7 +290,7 @@ public class SimService {
         data.put("sims", simDTOs);
         data.put("metadata", metaData);
 
-        return new BasicResponse(data, "Non-installed SIMs retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK);
+        return new BasicResponse(data, "Non-installed SIMs retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK, metaData);
     }
 
     // Search non-installed SIMs by phone number or CCID with pagination
@@ -300,7 +299,7 @@ public class SimService {
         Page<Sim> simPage = simRepository.findAllByStatusAndPhoneNumberContainingOrCcidContaining(SimStatus.PENDING, query, pageable);
 
         if (simPage.isEmpty()) {
-            return new BasicResponse(null, "No non-installed SIMs found", null, MessageType.ERROR, null, HttpStatus.NOT_FOUND);
+            return new BasicResponse(null, "No non-installed SIMs found", null, MessageType.ERROR, null, HttpStatus.NOT_FOUND, null);
         }
 
         List<SimBoitierDTO> simDTOs = simPage.getContent().stream()
@@ -321,7 +320,7 @@ public class SimService {
         data.put("sims", simDTOs);
         data.put("metadata", metaData);
 
-        return new BasicResponse(data, "Non-installed SIMs retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK);
+        return new BasicResponse(data, "Non-installed SIMs retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK, metaData);
     }
 
     // Transform entity to DTO

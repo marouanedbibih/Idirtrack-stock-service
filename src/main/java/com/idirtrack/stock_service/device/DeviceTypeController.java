@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,8 +18,8 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/stock-api")
 public class DeviceTypeController {
-  
- @Autowired
+
+    @Autowired
     private DeviceTypeService deviceTypeService;
 
     // Save device type
@@ -31,13 +30,12 @@ public class DeviceTypeController {
             return ResponseEntity.status(response.getStatus()).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .message(e.getMessage())
                     .messageType(MessageType.ERROR)
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .metadata(null)
                     .build());
         }
     }
-    //get all device type
-    
 }

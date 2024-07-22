@@ -2,7 +2,6 @@ package com.idirtrack.stock_service.sim;
 
 import java.sql.Date;
 import org.springframework.web.bind.annotation.CrossOrigin;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -24,7 +23,7 @@ import com.idirtrack.stock_service.sim.https.SimUpdateRequest;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/sim")
+@RequestMapping("/stock-api/sim")
 @CrossOrigin(origins = "http://localhost:3000")
 public class SimController {
 
@@ -84,23 +83,19 @@ public class SimController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    // Count non-installed SIMs
     @GetMapping("/count-non-installed-sims")
     public ResponseEntity<BasicResponse> countNonInstalledSimsApi() {
         BasicResponse response = simService.countNonInstalledSims();
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    // Get non-installed SIMs with pagination
     @GetMapping("/non-installed-sims")
     public ResponseEntity<BasicResponse> getNonInstalledSimsApi(@RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size) {
         BasicResponse response = simService.getAllNonInstalledSims(page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
-    
 
-    // Search non-installed SIMs by phone number or CCID
     @GetMapping("/non-installed-sims/search")
     public ResponseEntity<BasicResponse> searchNonInstalledSimsApi(@RequestParam(value = "query", required = false) String query,
             @RequestParam(value = "page", defaultValue = "1") int page,

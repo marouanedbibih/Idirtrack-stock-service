@@ -29,12 +29,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
-
-
 @RestController
 @RequestMapping("/stock-api")
-
-
 public class DeviceController {
 
     @Autowired
@@ -48,10 +44,11 @@ public class DeviceController {
             return ResponseEntity.status(response.getStatus()).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
-                .data(null)
+                .content(null)
                 .message(e.getMessage())
                 .messageType(MessageType.ERROR)
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .metadata(null)
                 .build());
         }
     }
@@ -66,13 +63,13 @@ public class DeviceController {
             return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
-                .data(null)
+                .content(null)
                 .message(e.getMessage())
                 .messageType(MessageType.ERROR)
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .metadata(null)
                 .build());
         }
-    
     }
 
     // Delete Device API
@@ -83,10 +80,11 @@ public class DeviceController {
             return ResponseEntity.status(response.getStatus()).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
-                .data(null)
+                .content(null)
                 .message(e.getMessage())
                 .messageType(MessageType.ERROR)
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .metadata(null)
                 .build());
         }
     }
@@ -99,24 +97,24 @@ public class DeviceController {
             return ResponseEntity.status(response.getStatus()).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
-                .data(null)
+                .content(null)
                 .message(e.getMessage())
                 .messageType(MessageType.ERROR)
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .metadata(null)
                 .build());
         }
     }
 
     // Get All Devices API
-    
     @GetMapping("/devices")
     public ResponseEntity<BasicResponse> getAllBoitiers(@RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size) {
         BasicResponse response = deviceService.getAllDevices(page, size);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-    // Search Devices API
 
+    // Search Devices API
     @GetMapping("/search")
     public ResponseEntity<BasicResponse> searchDevicesApi(@RequestParam(value = "imei", required = false) String imei,
                                                           @RequestParam(value = "typeDevice", required = false) String typeDevice,
@@ -130,10 +128,11 @@ public class DeviceController {
                 date = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(dateString).getTime());
             } catch (ParseException e) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(BasicResponse.builder()
-                    .data(null)
+                    .content(null)
                     .message("Invalid date format")
                     .messageType(MessageType.ERROR)
                     .status(HttpStatus.BAD_REQUEST)
+                    .metadata(null)
                     .build());
             }
         }
@@ -141,7 +140,6 @@ public class DeviceController {
         BasicResponse response = deviceService.searchDevices(imei, typeDevice, status, date, page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
-      
 
     // Count Devices by Status API
     @GetMapping("/Count-non-install")
@@ -150,14 +148,15 @@ public class DeviceController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    //get list of devices by status non-installed
+    // Get list of devices by status non-installed
     @GetMapping("/device-create-boitier")
     public ResponseEntity<BasicResponse> getNonInstalledDevicesApi(@RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size) {
         BasicResponse response = deviceService.getAllDevicesNonInstalled(page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
-    //search device non installed by imei
+
+    // Search device non installed by IMEI
     @GetMapping("/device-create-boitier/search")
     public ResponseEntity<BasicResponse> searchNonInstalledDevicesApi(@RequestParam(value = "imei", required = false) String imei,
             @RequestParam(value = "page", defaultValue = "1") int page,

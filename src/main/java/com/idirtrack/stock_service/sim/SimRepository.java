@@ -29,7 +29,7 @@ public interface SimRepository extends JpaRepository<Sim, Long>, JpaSpecificatio
     @Query("SELECT COUNT(s) > 0 FROM Sim s WHERE s.phoneNumber = :phoneNumber")
     boolean existsByPhoneNumber(@Param("phoneNumber") String phoneNumber);
 
-    @Query("SELECT s FROM Sim s WHERE s.status = :status AND (s.phoneNumber LIKE %:query% OR s.ccid LIKE %:query%)")
+    @Query("SELECT s FROM Sim s WHERE s.status = :status AND (s.phoneNumber LIKE CONCAT('%',:query,'%') OR s.ccid LIKE CONCAT('%',:query,'%'))")
     Page<Sim> findAllByStatusAndPhoneNumberContainingOrCcidContaining(
             @Param("status") SimStatus status,
             @Param("query") String query,

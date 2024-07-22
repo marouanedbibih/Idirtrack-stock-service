@@ -11,10 +11,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BasicResponse {
-    private Object data;
+    private Object content;
     private String message;
     private Map<String, String> messagesList;
     private MessageType messageType;
     private String redirectUrl;
     private HttpStatus status;
+    private MetaData metadata;
 }
