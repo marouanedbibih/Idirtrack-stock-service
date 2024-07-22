@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/sim-type")
+@RequestMapping("/stock-api/sim-type")
 public class SimTypeController {
 
     @Autowired
     private SimTypeService simTypeService;
 
-    @PostMapping
+    @PostMapping("/")
     public ResponseEntity<BasicResponse> createSimType(@Valid @RequestBody SimTypeRequest simTypeRequest, BindingResult bindingResult) throws BasicException {
         BasicResponse response = simTypeService.createSimType(simTypeRequest, bindingResult);
         return ResponseEntity.status(response.getStatus()).body(response);

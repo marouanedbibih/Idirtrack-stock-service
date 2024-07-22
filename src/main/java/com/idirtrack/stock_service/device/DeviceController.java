@@ -165,4 +165,22 @@ public class DeviceController {
         BasicResponse response = deviceService.searchNonInstalledDevices(imei, page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+
+    // Change Device Status to Installed API
+    @PutMapping("/status/installed/{id}/")
+    public ResponseEntity<BasicResponse> changeDeviceStatusToInstalledApi(@PathVariable Long id) {
+        try {
+            BasicResponse response = deviceService.changeDeviceStatusInstalled(id);
+            return ResponseEntity.status(response.getStatus()).body(response);
+        } catch (BasicException e) {
+            return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
+                .content(null)
+                .message(e.getMessage())
+                .messageType(MessageType.ERROR)
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .build());
+        }
+    }
 }

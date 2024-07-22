@@ -425,6 +425,7 @@ public class DeviceService {
                 .map(device -> DeviceBoitierDTO.builder()
                         .deviceMicroserviceId(device.getId())
                         .imei(device.getImei())
+                        .type(device.getDeviceType().getName())
                         .build())
 
                 .collect(Collectors.toList());
@@ -474,6 +475,7 @@ public class DeviceService {
                 .map(device -> DeviceBoitierDTO.builder()
                         .deviceMicroserviceId(device.getId())
                         .imei(device.getImei())
+                        .type(device.getDeviceType().getName())
                         .build())
                 .collect(Collectors.toList());
 
@@ -495,6 +497,31 @@ public class DeviceService {
                 .messageType(MessageType.SUCCESS)
                 .build();
     }
+
+    // Change device status to installed
+    public BasicResponse changeDeviceStatusInstalled(Long id) throws BasicException {
+        Device device = deviceRepository.findById(id).orElse(null);
+        if (device == null) {
+            throw new BasicException(BasicResponse.builder()
+                    .content(null)
+                    .message("Device not found")
+                    .messageType(MessageType.ERROR)
+                    .status(HttpStatus.NOT_FOUND)
+                    .build());
+        }
+
+        device.setStatus(DeviceStatus.INSTALLED);
+        device = deviceRepository.save(device);
+
+        return BasicResponse.builder()
+                .content(device)
+                .message("Device status changed to installed successfully")
+                .messageType(MessageType.SUCCESS)
+                .status(HttpStatus.OK)
+                .build();
+    }
+
+    
 
 }
 
