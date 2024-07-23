@@ -160,8 +160,8 @@ public class DeviceController {
     //search device non installed by imei
     @GetMapping("/device-create-boitier/search")
     public ResponseEntity<BasicResponse> searchNonInstalledDevicesApi(@RequestParam(value = "imei", required = false) String imei,
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size) {
         BasicResponse response = deviceService.searchNonInstalledDevices(imei, page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
