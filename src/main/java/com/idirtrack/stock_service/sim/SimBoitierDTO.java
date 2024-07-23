@@ -1,0 +1,17 @@
+package com.idirtrack.stock_service.sim;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class SimBoitierDTO {
+    private Long simMicroserviceId;
+    private String ccid;
+    private String phoneNumber;
+    private String type;
+}

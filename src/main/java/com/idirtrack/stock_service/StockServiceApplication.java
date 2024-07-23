@@ -10,5 +10,4 @@ public class StockServiceApplication {
 		SpringApplication.run(StockServiceApplication.class, args);
 		System.out.println("Stock Service is running...");
 	}
-
 }
