@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Date;
 import java.util.List;
 
 @Data
@@ -21,10 +22,13 @@ public class SimType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String type;
 
+    @Column(name = "created_at", nullable = false)
+    private Date createdAt;
+
     @OneToMany(mappedBy = "simType")
-    @JsonBackReference // to avoid infinite loop
+    @JsonBackReference
     private List<Sim> sims;
 }

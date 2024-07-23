@@ -1,8 +1,10 @@
 package com.idirtrack.stock_service.sim;
 
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +56,7 @@ public class SimTypeService {
         // Transform the request to entity
         SimType simType = SimType.builder()
                 .type(request.getType())
+                .createdAt(new Date(System.currentTimeMillis()))
                 .build();
 
         // Save the SIM type entity
@@ -102,6 +105,7 @@ public class SimTypeService {
         List<SimType> simTypes = requests.stream()
                 .map(request -> SimType.builder()
                         .type(request.getType())
+                        .createdAt(new Date(System.currentTimeMillis()))
                         .build())
                 .collect(Collectors.toList());
 
@@ -118,7 +122,7 @@ public class SimTypeService {
                 .build();
     }
 
-    public BasicResponse updateSimType(String name, @Valid SimTypeRequest request, BindingResult bindingResult) throws BasicException {
+    public BasicResponse updateSimType(Long id, @Valid SimTypeRequest request, BindingResult bindingResult) throws BasicException {
         // Validate the request
         Map<String, String> messagesList = BasicValidation.getValidationsErrors(bindingResult);
         if (!messagesList.isEmpty()) {
@@ -132,8 +136,8 @@ public class SimTypeService {
                     .build());
         }
 
-        // Check if the SIM type already exists
-        SimType existingSimType = simTypeRepository.findByType(name)
+        // Check if the SIM type exists
+        SimType existingSimType = simTypeRepository.findById(id)
                 .orElseThrow(() -> new BasicException(BasicResponse.builder()
                         .content(null)
                         .message("SIM type not found")
@@ -171,13 +175,13 @@ public class SimTypeService {
                 .build();
     }
 
-    public BasicResponse deleteSimTypes(List<String> names) throws BasicException {
+    public BasicResponse deleteSimTypes(List<Long> ids) throws BasicException {
         // Check if each SIM type exists before deleting
-        for (String name : names) {
-            SimType simType = simTypeRepository.findByType(name)
+        for (Long id : ids) {
+            SimType simType = simTypeRepository.findById(id)
                     .orElseThrow(() -> new BasicException(BasicResponse.builder()
                             .content(null)
-                            .message("SIM type not found: " + name)
+                            .message("SIM type not found: " + id)
                             .messagesList(null)
                             .messageType(MessageType.ERROR)
                             .status(HttpStatus.NOT_FOUND)
@@ -197,7 +201,31 @@ public class SimTypeService {
                 .build();
     }
 
-    public List<SimType> getAllSimTypes() {
-        return simTypeRepository.findAll();
+    public BasicResponse getAllSimTypes() {
+        List<SimType> simTypes = simTypeRepository.findAll();
+        return BasicResponse.builder()
+                .content(simTypes)
+                .message("SIM types retrieved successfully")
+                .messageType(MessageType.SUCCESS)
+                .status(HttpStatus.OK)
+                .build();
+    }
+
+    public BasicResponse getSimTypeById(Long id) throws BasicException {
+        SimType simType = simTypeRepository.findById(id)
+                .orElseThrow(() -> new BasicException(BasicResponse.builder()
+                        .content(null)
+                        .message("SIM type not found")
+                        .messagesList(null)
+                        .messageType(MessageType.ERROR)
+                        .status(HttpStatus.NOT_FOUND)
+                        .redirectUrl(null)
+                        .build()));
+        return BasicResponse.builder()
+                .content(simType)
+                .message("SIM type retrieved successfully")
+                .messageType(MessageType.SUCCESS)
+                .status(HttpStatus.OK)
+                .build();
     }
 }

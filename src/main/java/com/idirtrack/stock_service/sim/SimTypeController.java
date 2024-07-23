@@ -54,10 +54,10 @@ public class SimTypeController {
         }
     }
 
-    @PutMapping("/{name}")
-    public ResponseEntity<BasicResponse> updateSimType(@PathVariable String name, @Valid @RequestBody SimTypeRequest simTypeRequest, BindingResult bindingResult) {
+    @PutMapping("/{id}")
+    public ResponseEntity<BasicResponse> updateSimType(@PathVariable Long id, @Valid @RequestBody SimTypeRequest simTypeRequest, BindingResult bindingResult) {
         try {
-            BasicResponse response = simTypeService.updateSimType(name, simTypeRequest, bindingResult);
+            BasicResponse response = simTypeService.updateSimType(id, simTypeRequest, bindingResult);
             return ResponseEntity.status(response.getStatus()).body(response);
         } catch (BasicException e) {
             return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
@@ -72,10 +72,12 @@ public class SimTypeController {
     }
 
     @DeleteMapping
-    public ResponseEntity<BasicResponse> deleteSimTypes(@RequestParam List<String> names) {
+    public ResponseEntity<BasicResponse> deleteSimTypes(@RequestParam List<Long> ids) {
         try {
-            BasicResponse response = simTypeService.deleteSimTypes(names);
+            BasicResponse response = simTypeService.deleteSimTypes(ids);
             return ResponseEntity.status(response.getStatus()).body(response);
+        } catch (BasicException e) {
+            return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
                     .content(null)
@@ -89,12 +91,25 @@ public class SimTypeController {
     @GetMapping
     public ResponseEntity<BasicResponse> getAllSimTypes() {
         try {
-            return ResponseEntity.ok(BasicResponse.builder()
-                    .content(simTypeService.getAllSimTypes())
-                    .message("SIM types retrieved successfully")
-                    .messageType(MessageType.SUCCESS)
-                    .status(HttpStatus.OK)
+            BasicResponse response = simTypeService.getAllSimTypes();
+            return ResponseEntity.status(response.getStatus()).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
+                    .content(null)
+                    .message(e.getMessage())
+                    .messageType(MessageType.ERROR)
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build());
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BasicResponse> getSimTypeById(@PathVariable Long id) {
+        try {
+            BasicResponse response = simTypeService.getSimTypeById(id);
+            return ResponseEntity.status(response.getStatus()).body(response);
+        } catch (BasicException e) {
+            return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
                     .content(null)
