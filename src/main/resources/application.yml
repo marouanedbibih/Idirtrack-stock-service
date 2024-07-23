@@ -1,11 +1,11 @@
 server:
-  port: ${SPRING_APP_PORT}
+  port: ${SPRING_APP_PORT:8085}
 spring:
   application:
-    name: ${SPRING_APPLICATION_NAME}
+    name: ${SPRING_APPLICATION_NAME:stock-service}
   datasource:
-    driver-class-name: ${DATASOURCE_DRIVER_CLASS_NAME}
-    url: ${DATASOURCE_URL}
+    driver-class-name: ${DATASOURCE_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
+    url: ${DATASOURCE_URL:jdbc:mysql://db-instance-idirtrack.cdyk8iy4qug8.eu-west-3.rds.amazonaws.com:5432/stock_microservice_db?createDatabaseIfNotExist=true&useSSL=false}
     username: ${DATASOURCE_USERNAME}
     password: ${DATASOURCE_PASSWORD}
   jpa:
