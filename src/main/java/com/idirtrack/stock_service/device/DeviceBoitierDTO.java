@@ -13,5 +13,6 @@ public class DeviceBoitierDTO {
   
       private Long deviceMicroserviceId;
       private String imei;
+      private String type;
      
 }

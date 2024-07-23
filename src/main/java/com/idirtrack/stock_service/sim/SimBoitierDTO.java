@@ -13,4 +13,5 @@ public class SimBoitierDTO {
     private Long simMicroserviceId;
     private String ccid;
     private String phoneNumber;
+    private String type;
 }

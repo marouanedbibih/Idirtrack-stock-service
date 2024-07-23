@@ -1,19 +1,14 @@
 package com.idirtrack.stock_service.sim;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.sql.Date;
+import java.util.List;
 
 @Data
 @Entity
@@ -27,10 +22,13 @@ public class SimType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Name of the SIM type unique
+    @Column(nullable = false, unique = true)
     private String type;
 
+    @Column(name = "created_at", nullable = false)
+    private Date createdAt;
+
     @OneToMany(mappedBy = "simType")
-    @JsonBackReference // to avoid infinite loop
+    @JsonBackReference
     private List<Sim> sims;
 }
