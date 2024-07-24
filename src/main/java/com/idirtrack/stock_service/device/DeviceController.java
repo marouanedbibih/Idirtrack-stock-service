@@ -48,14 +48,8 @@ public class DeviceController {
         try {
             BasicResponse response = deviceService.createDevice(deviceRequest, bindingResult);
             return ResponseEntity.status(response.getStatus()).body(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
-                .content(null)
-                .message(e.getMessage())
-                .messageType(MessageType.ERROR)
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .metadata(null)
-                .build());
+        } catch (BasicException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getResponse());
         }
     }
 

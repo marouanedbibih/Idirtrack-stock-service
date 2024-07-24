@@ -34,5 +34,8 @@ public interface DeviceRepository  extends JpaRepository<Device, Long>{
    @Query("SELECT d FROM Device d WHERE d.status = :status AND d.imei LIKE %:imei%")
     Page<Device> findAllByStatusAndImeiContaining(@Param("status") DeviceStatus status, @Param("imei") String imei, Pageable pageable);
 
+    // Check if the device type already exists by id
+    boolean existsById(Long id);
+
   
 }

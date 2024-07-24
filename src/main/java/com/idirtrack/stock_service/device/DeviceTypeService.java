@@ -43,7 +43,7 @@ public class DeviceTypeService {
             throw new BasicException(BasicResponse.builder()
                     .content(null)
                     .message("Validation Error")
-                    .messagesList(messagesList)
+                    .messagesObject(messagesList)
                     .messageType(MessageType.ERROR)
                     .status(HttpStatus.BAD_REQUEST)
                     .redirectUrl(null)
@@ -83,7 +83,7 @@ public class DeviceTypeService {
             throw new BasicException(BasicResponse.builder()
                     .content(null)
                     .message("Device type already exists")
-                    .messagesList(messagesList)
+                    .messagesObject(messagesList)
                     .messageType(MessageType.ERROR)
                     .status(HttpStatus.BAD_REQUEST)
                     .redirectUrl(null)
@@ -153,9 +153,9 @@ public class DeviceTypeService {
                 .size(devicePage.getSize())
                 .build();
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("devices", deviceDTOs);
-        data.put("metadata", metaData);
+        // Map<String, Object> data = new HashMap<>();
+        // data.put("devices", deviceDTOs);
+        // data.put("metadata", metaData);
 
         // if device not found
         if (devicePage.isEmpty()) {
@@ -168,7 +168,8 @@ public class DeviceTypeService {
                     .build();
         }
         return BasicResponse.builder()
-                .content(data)
+                .content(deviceDTOs)
+                .metadata(metaData)
                 .status(HttpStatus.OK)
                 .message("Devices retrieved successfully")
                 .metadata(metaData)
@@ -183,7 +184,7 @@ public class DeviceTypeService {
             throw new BasicException(BasicResponse.builder()
                     .content(null)
                     .message("Device type not be empty")
-                    .messagesList(messagesList)
+                    .messagesObject(messagesList)
                     .messageType(MessageType.ERROR)
                     .status(HttpStatus.BAD_REQUEST)
                     .redirectUrl(null)

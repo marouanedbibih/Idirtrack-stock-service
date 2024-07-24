@@ -49,7 +49,7 @@ public class DeviceService {
                     .status(HttpStatus.BAD_REQUEST)
                     .message("Invalid fields")
                     .messageType(MessageType.ERROR)
-                    .content(errors)
+                    .messagesObject(errors)
                     .metadata(null)
                     .build());
         }
@@ -60,18 +60,18 @@ public class DeviceService {
         } catch (BasicException e) {
             throw new BasicException(BasicResponse.builder()
                     .status(HttpStatus.BAD_REQUEST)
-                    .message("IMEI already exists")
+                    .messagesObject(Map.of("imei", "IMEI already exists"))
                     .messageType(MessageType.ERROR)
                     .content(null)
                     .build());
         }
 
         // Check if device type exists
-        if (!deviceTypeRepository.existsByName(deviceRequest.getTypeDevice())) {
+        if (!deviceTypeRepository.existsById(deviceRequest.getDeviceTypeId())) {
             throw new BasicException(BasicResponse.builder()
                     .status(HttpStatus.BAD_REQUEST)
-                    .message("Device type not found")
                     .messageType(MessageType.ERROR)
+                    .messagesObject(Map.of("deviceTypeId", "Device type not found"))
                     .content(null)
                     .metadata(null)
                     .build());
@@ -326,7 +326,7 @@ public class DeviceService {
     public DeviceDTO transformRequestDTO(DeviceRequest deviceRequest) {
         return DeviceDTO.builder()
                 .IMEI(deviceRequest.getImei())
-                .deviceType(deviceRequest.getTypeDevice())
+                .deviceType(deviceTypeRepository.findById(deviceRequest.getDeviceTypeId()).get().getName())
                 .remarque(deviceRequest.getRemarque())
                 .build();
     }
@@ -339,7 +339,7 @@ public class DeviceService {
             throw new BasicException(BasicResponse.builder()
                     .content(null)
                     .message("IMEI already exists")
-                    .messagesList(messagesList)
+                    .messagesObject(messagesList)
                     .build());
         }
     }

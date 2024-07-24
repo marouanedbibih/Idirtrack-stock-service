@@ -19,7 +19,7 @@ public class DeviceRequest {
     private String imei;
 
     @NotNull(message = "The Type is required")
-    private String typeDevice;
+    private Long deviceTypeId;
     
     @Size(max = 100, message = "The remarque must be less than 100 characters")
     @Pattern(regexp = "^[a-zA-Z0-9 ]*$", message = "The remarque must contain only alphanumeric characters and spaces")
