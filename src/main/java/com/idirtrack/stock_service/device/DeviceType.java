@@ -31,6 +31,7 @@ public class DeviceType {
   //name of the device type unique
   private String name;
 
+
   @OneToMany(mappedBy = "deviceType")
   @JsonBackReference //to avoid infinite loop
   private List<Device> devices;

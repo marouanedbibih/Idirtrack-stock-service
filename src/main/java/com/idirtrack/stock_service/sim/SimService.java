@@ -5,6 +5,7 @@ import com.idirtrack.stock_service.basics.BasicResponse;
 import com.idirtrack.stock_service.basics.BasicValidation;
 import com.idirtrack.stock_service.basics.MessageType;
 import com.idirtrack.stock_service.basics.MetaData;
+
 import com.idirtrack.stock_service.device.Device;
 import com.idirtrack.stock_service.device.DeviceStatus;
 import com.idirtrack.stock_service.sim.https.SimRequest;
@@ -92,6 +93,8 @@ public class SimService {
                                 .addDate(new Date(System.currentTimeMillis()))
                                 .status(SimStatus.PENDING)
                                 .build();
+                System.out.println("SimService Date:" + sim.getAddDate());
+
 
                 simRepository.save(sim);
                 updateSimStock(sim);
@@ -447,6 +450,10 @@ public class SimService {
 
         /**
          * Transform SIM entity to DTO
+<<<<<<< HEAD
+         * 
+=======
+>>>>>>> 9218fee594796ba83f7894b662d9405677244e53
          * @param sim
          * @return
          */

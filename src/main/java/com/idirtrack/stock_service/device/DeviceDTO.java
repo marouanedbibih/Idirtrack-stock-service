@@ -1,5 +1,8 @@
 package com.idirtrack.stock_service.device;
 
+import java.sql.Date;
+
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,5 +19,7 @@ public class DeviceDTO {
     private DeviceStatus status;
     private String deviceType;
     private String remarque;
+    private Date createAt;
+
       
 }

@@ -22,15 +22,26 @@ public class StockController {
     @GetMapping("/stocks")
     public ResponseEntity<BasicResponse> getAllStocks() {
         List<Stock> stocks = stockService.getAllStocks();
-<<<<<<< HEAD
         return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.builder()
                 .content(stocks)
                 .message("Stocks retrieved successfully")
                 .status(HttpStatus.OK)
                 .build());
-=======
-        MetaData metaData = new MetaData(1, 1, stocks.size()); // Customize this as needed
-        return ResponseEntity.ok(new BasicResponse(stocks, "All stocks retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK, metaData));
->>>>>>> 117eb0fbb691011550489c2934085002d9e65745
+        // MetaData metaData = new MetaData(1, 1, stocks.size()); // Customize this as needed
+        // return ResponseEntity.ok(new BasicResponse(stocks, "All stocks retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK, metaData));
     }
+//     @GetMapping("/stocks")
+//     public ResponseEntity<BasicResponse> getAllStocks() {
+//         List<Stock> stocks = stockService.getAllStocks();
+
+//         return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.builder()
+//                 .content(stocks)
+//                 .message("Stocks retrieved successfully")
+//                 .status(HttpStatus.OK)
+//                 .build());
+
+//         MetaData metaData = new MetaData(1, 1, stocks.size()); 
+//         // Customize this as needed
+//         return ResponseEntity.ok(new BasicResponse(stocks, "All stocks retrieved successfully", null, MessageType.SUCCESS, null, HttpStatus.OK, metaData));
+//     }
 }
