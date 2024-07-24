@@ -8,5 +8,6 @@ public class StockServiceApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(StockServiceApplication.class, args);
+		System.out.println("Stock Service is running...");
 	}
 }

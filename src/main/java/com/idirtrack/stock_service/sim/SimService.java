@@ -5,6 +5,9 @@ import com.idirtrack.stock_service.basics.BasicResponse;
 import com.idirtrack.stock_service.basics.BasicValidation;
 import com.idirtrack.stock_service.basics.MessageType;
 import com.idirtrack.stock_service.basics.MetaData;
+
+import com.idirtrack.stock_service.device.Device;
+import com.idirtrack.stock_service.device.DeviceStatus;
 import com.idirtrack.stock_service.sim.https.SimRequest;
 import com.idirtrack.stock_service.sim.https.SimUpdateRequest;
 import com.idirtrack.stock_service.stock.Stock;
@@ -81,8 +84,6 @@ public class SimService {
                                 .orElseThrow(() -> new BasicException(new BasicResponse(null, "SIM type not found",
                                                 null, MessageType.ERROR, null, HttpStatus.BAD_REQUEST, null)));
 
-
-
                 Sim sim = Sim.builder()
                                 .pin(simRequest.getPin())
                                 .puk(simRequest.getPuk())
@@ -93,6 +94,7 @@ public class SimService {
                                 .status(SimStatus.PENDING)
                                 .build();
                 System.out.println("SimService Date:" + sim.getAddDate());
+
 
                 simRepository.save(sim);
                 updateSimStock(sim);
@@ -448,7 +450,10 @@ public class SimService {
 
         /**
          * Transform SIM entity to DTO
+<<<<<<< HEAD
          * 
+=======
+>>>>>>> 9218fee594796ba83f7894b662d9405677244e53
          * @param sim
          * @return
          */
@@ -467,7 +472,6 @@ public class SimService {
 
         /**
          * Change SIM status to installed service
-         * 
          * @param id
          * @return
          * @throws BasicException
