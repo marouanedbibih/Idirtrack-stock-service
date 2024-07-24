@@ -214,6 +214,7 @@ public class DeviceService {
                         .IMEI(device.getImei())
                         .remarque(device.getRemarque())
                         .status(device.getStatus())
+                        .createAt(device.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
 
@@ -222,10 +223,6 @@ public class DeviceService {
                 .totalPages(devicePage.getTotalPages())
                 .size(devicePage.getSize())
                 .build();
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("devices", deviceDTOs);
-        data.put("metadata", metaData);
 
         // if device not found
         if (devicePage.isEmpty()) {
@@ -238,7 +235,8 @@ public class DeviceService {
                     .build();
         }
         return BasicResponse.builder()
-                .content(data)
+                .content(deviceDTOs)
+                .metadata(metaData)
                 .status(HttpStatus.OK)
                 .message("Devices retrieved successfully")
                 .metadata(metaData)

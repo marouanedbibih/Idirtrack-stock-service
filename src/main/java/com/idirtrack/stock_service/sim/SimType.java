@@ -25,7 +25,7 @@ public class SimType {
     @Column(nullable = false, unique = true)
     private String type;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     private Date createdAt;
 
     @OneToMany(mappedBy = "simType")

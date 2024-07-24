@@ -47,7 +47,6 @@ public class SimController {
     }
 
     @PostMapping("/")
-
     public ResponseEntity<BasicResponse> createSim(@Valid @RequestBody SimRequest simRequest,
             BindingResult bindingResult) throws BasicException {
         BasicResponse response = simService.createSim(simRequest, bindingResult);
