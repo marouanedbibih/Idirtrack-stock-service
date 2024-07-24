@@ -166,12 +166,13 @@ public class DeviceService {
 
         // Update device stock on delete
         updateDeviceStockOnDelete(device);
+        String imei = device.getImei();
 
         deviceRepository.delete(device);
 
         return BasicResponse.builder()
-                .message("Device deleted successfully")
-                .messageType(MessageType.SUCCESS)
+                .message("Device deleted successfully with IME: " + imei)
+                .messageType(MessageType.WARNING)
                 .status(HttpStatus.OK)
                 .metadata(null)
                 .build();
