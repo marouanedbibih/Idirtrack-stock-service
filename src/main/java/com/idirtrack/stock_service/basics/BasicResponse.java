@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class BasicResponse {
     private Object content;
     private String message;
-    private Map<String, String> messagesList;
+    private Map<String, String> messagesObject;
     private MessageType messageType;
     private String redirectUrl;
     private HttpStatus status;
