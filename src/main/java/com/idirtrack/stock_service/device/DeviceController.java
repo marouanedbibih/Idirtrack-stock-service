@@ -118,7 +118,7 @@ public class DeviceController {
     }
 
     // Search Devices API
-    @GetMapping("/search")
+    @GetMapping("/filter/")
     public ResponseEntity<BasicResponse> searchDevicesApi(@RequestParam(value = "imei", required = false) String imei,
                                                           @RequestParam(value = "typeDevice", required = false) String typeDevice,
                                                           @RequestParam(value = "status", required = false) String status,

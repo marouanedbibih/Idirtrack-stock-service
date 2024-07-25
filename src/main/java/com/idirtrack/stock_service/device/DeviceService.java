@@ -99,7 +99,7 @@ public class DeviceService {
     }
 
     // Update device
-    public BasicResponse updateDevice(Long id, @Valid DeviceUpdateRequest deviceUpdateRequest,
+    public BasicResponse updateDevice(Long id, @Valid DeviceUpdateRequest request,
             BindingResult bindingResult) throws BasicException {
 
         // Validate the request
@@ -109,10 +109,11 @@ public class DeviceService {
                     .status(HttpStatus.BAD_REQUEST)
                     .message("Invalid fields")
                     .messageType(MessageType.ERROR)
-                    .content(errors)
+                    .messagesObject(errors)
                     .build());
         }
 
+        // Check if the device exists
         Device existingDevice = deviceRepository.findById(id)
                 .orElseThrow(() -> new BasicException(BasicResponse.builder()
                         .content(null)
@@ -121,29 +122,53 @@ public class DeviceService {
                         .status(HttpStatus.NOT_FOUND)
                         .metadata(null)
                         .build()));
+        
+        // Check if the imei is different from the current one
+        if (!existingDevice.getImei().equals(request.getImei())) {
+            // Check if the new imei already exists in another device
+            if (deviceRepository.existsByImei(request.getImei())) {
+                throw new BasicException(BasicResponse.builder()
+                        .status(HttpStatus.BAD_REQUEST)
+                        .message("IMEI already exists")
+                        .messageType(MessageType.ERROR)
+                        .content(null)
+                        .metadata(null)
+                        .build());
+            }
+        }
 
         // Check if device type exists
-        if (!deviceTypeRepository.existsByName(deviceUpdateRequest.getTypeDevice())) {
+        if (!deviceTypeRepository.existsById(request.getDeviceTypeId())) {
             throw new BasicException(BasicResponse.builder()
                     .status(HttpStatus.BAD_REQUEST)
                     .message("Device type not found")
                     .messageType(MessageType.ERROR)
                     .content(null)
-
                     .metadata(null)
                     .build());
         }
 
-        existingDevice.setImei(deviceUpdateRequest.getImei());
-        existingDevice.setDeviceType(deviceTypeRepository.findByName(deviceUpdateRequest.getTypeDevice()));
-        existingDevice.setStatus(DeviceStatus.valueOf(deviceUpdateRequest.getStatus()));
-        existingDevice.setRemarque(deviceUpdateRequest.getRemarque());
+        // Update the device
+        existingDevice.setImei(request.getImei());
+        existingDevice.setDeviceType(deviceTypeRepository.findById(request.getDeviceTypeId()).get());
+        existingDevice.setRemarque(request.getRemarque());
         existingDevice.setUpdatedAt(new Date(System.currentTimeMillis()));
 
         deviceRepository.save(existingDevice);
 
+        // Build the DTO
+        DeviceDTO deviceDTO = DeviceDTO.builder()
+                .id(existingDevice.getId())
+                .IMEI(existingDevice.getImei())
+                .deviceType(existingDevice.getDeviceType().getName())
+                .remarque(existingDevice.getRemarque())
+                .status(existingDevice.getStatus())
+                .createAt(existingDevice.getCreatedAt())
+                .updateAt(existingDevice.getUpdatedAt())
+                .build();
+
         return BasicResponse.builder()
-                .content(existingDevice)
+                .content(deviceDTO)
                 .message("Device updated successfully")
                 .messageType(MessageType.SUCCESS)
                 .status(HttpStatus.OK)
@@ -191,8 +216,19 @@ public class DeviceService {
                     .build());
         }
 
+        // Build the dto
+        DeviceDTO deviceDTO = DeviceDTO.builder()
+                .id(device.getId())
+                .IMEI(device.getImei())
+                .deviceType(device.getDeviceType().getName())
+                .deviceTypeId(device.getDeviceType().getId())
+                .remarque(device.getRemarque())
+                .status(device.getStatus())
+                .createAt(device.getCreatedAt())
+                .build();
+
         return BasicResponse.builder()
-                .content(device)
+                .content(deviceDTO)
                 .message("Device retrieved successfully")
                 .messageType(MessageType.SUCCESS)
                 .status(HttpStatus.OK)
@@ -260,9 +296,9 @@ public class DeviceService {
     public DeviceDTO transformRequestUpdateDTO(DeviceUpdateRequest deviceUpdateRequest) {
         return DeviceDTO.builder()
                 .IMEI(deviceUpdateRequest.getImei())
-                .deviceType(deviceUpdateRequest.getTypeDevice())
+                // .deviceType(deviceUpdateRequest.getTypeDevice())
                 .remarque(deviceUpdateRequest.getRemarque())
-                .status(DeviceStatus.valueOf(deviceUpdateRequest.getStatus()))
+                // .status(DeviceStatus.valueOf(deviceUpdateRequest.getStatus()))
                 .build();
     }
 
@@ -341,6 +377,7 @@ public class DeviceService {
                     .content(null)
                     .message("IMEI already exists")
                     .messagesObject(messagesList)
+                    .status(HttpStatus.BAD_REQUEST)
                     .build());
         }
     }
@@ -422,7 +459,6 @@ public class DeviceService {
     }
     // get all device non installed by pagination
 
-
     // Get all device non installed by pagination
     public BasicResponse getAllDevicesNonInstalled(int page, int size) {
         // Create pagination
@@ -466,12 +502,12 @@ public class DeviceService {
                 .build();
     }
 
-
     // search device non installed by imei
 
     public BasicResponse searchNonInstalledDevices(String imei, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Device> devicePage = deviceRepository.findAllByStatusAndImeiContaining(DeviceStatus.NON_INSTALLED, imei, pageable);
+        Page<Device> devicePage = deviceRepository.findAllByStatusAndImeiContaining(DeviceStatus.NON_INSTALLED, imei,
+                pageable);
 
         if (devicePage.isEmpty()) {
             return BasicResponse.builder()
@@ -496,7 +532,6 @@ public class DeviceService {
                 .totalPages(devicePage.getTotalPages())
                 .size(devicePage.getSize())
                 .build();
-
 
         return BasicResponse.builder()
                 .content(deviceDTOs)
