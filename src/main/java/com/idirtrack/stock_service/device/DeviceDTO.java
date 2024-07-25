@@ -17,9 +17,11 @@ public class DeviceDTO {
     private Long id;
     private String IMEI;
     private DeviceStatus status;
+    private Long deviceTypeId;
     private String deviceType;
     private String remarque;
     private Date createAt;
+    private Date updateAt;
 
       
 }

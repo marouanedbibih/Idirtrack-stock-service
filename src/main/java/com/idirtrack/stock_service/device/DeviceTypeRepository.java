@@ -13,6 +13,7 @@ public interface DeviceTypeRepository  extends JpaRepository<DeviceType, Long>{
   boolean existsByName(String name);
   Long findIdByName(String name);
   DeviceType findByName(String name);
+  boolean existsById(Long id);
 
   
 }
