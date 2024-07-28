@@ -15,20 +15,23 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "sim_type")
-public class SimType {
+@Table(name = "operator")
+public class Operator {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String type;
+    private String name;
 
     @Column(name = "created_at")
     private Date createdAt;
 
-    @OneToMany(mappedBy = "simType")
+    @Column(name = "updated_at")
+    private Date updatedAt;
+
+    @OneToMany(mappedBy = "operator")
     @JsonBackReference
     private List<Sim> sims;
 }

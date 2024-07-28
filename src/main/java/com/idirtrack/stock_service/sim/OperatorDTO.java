@@ -5,13 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SimBoitierDTO {
-    private Long simMicroserviceId;
-    private String ccid;
-    private String phone;
-    private String operator;
+@Data
+public class OperatorDTO {
+    private Long id;
+    private String name;
 }

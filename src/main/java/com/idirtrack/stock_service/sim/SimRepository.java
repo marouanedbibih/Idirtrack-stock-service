@@ -14,24 +14,28 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SimRepository extends JpaRepository<Sim, Long>, JpaSpecificationExecutor<Sim> {
 
-    @Query("SELECT s FROM Sim s WHERE s.pin LIKE %:query% OR s.puk LIKE %:query% OR s.ccid LIKE %:query% OR s.simType.type LIKE %:query% OR s.status LIKE %:query% OR s.phoneNumber LIKE %:query%")
-    List<Sim> findByAnyFieldContaining(@Param("query") String query);
+    // @Query("SELECT s FROM Sim s WHERE s.pin LIKE %:query% OR s.puk LIKE %:query% OR s.ccid LIKE %:query% OR s.simType.type LIKE %:query% OR s.status LIKE %:query% OR s.phoneNumber LIKE %:query%")
+    // List<Sim> findByAnyFieldContaining(@Param("query") String query);
 
-    @Query("SELECT s FROM Sim s WHERE s.addDate BETWEEN :startDate AND :endDate")
-    List<Sim> findByAddDateBetween(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
+    // @Query("SELECT s FROM Sim s WHERE s.addDate BETWEEN :startDate AND :endDate")
+    // List<Sim> findByAddDateBetween(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
     boolean existsByCcid(String ccid);
 
-    Long countByStatus(SimStatus status);
+    // Long countByStatus(SimStatus status);
 
-    Page<Sim> findAllByStatus(SimStatus status, Pageable pageable);
+    // Page<Sim> findAllByStatus(SimStatus status, Pageable pageable);
 
-    @Query("SELECT COUNT(s) > 0 FROM Sim s WHERE s.phoneNumber = :phoneNumber")
-    boolean existsByPhoneNumber(@Param("phoneNumber") String phoneNumber);
+    @Query("SELECT COUNT(s) > 0 FROM Sim s WHERE s.phone = :phone")
+    boolean existsByPhone(@Param("phone") String phone);
 
-    @Query("SELECT s FROM Sim s WHERE s.status = :status AND (s.phoneNumber LIKE CONCAT('%',:query,'%') OR s.ccid LIKE CONCAT('%',:query,'%'))")
-    Page<Sim> findAllByStatusAndPhoneNumberContainingOrCcidContaining(
+    Page<Sim> findAllByStatus(SimStatus pending, Pageable pageRequest);
+
+    @Query("SELECT s FROM Sim s WHERE s.status = :status AND (s.phone LIKE CONCAT('%',:query,'%') OR s.ccid LIKE CONCAT('%',:query,'%'))")
+    Page<Sim> findAllByStatusAndPhoneContainingOrCcidContaining(
             @Param("status") SimStatus status,
             @Param("query") String query,
             Pageable pageable);
+
+    long countByStatus(SimStatus pending);
 }

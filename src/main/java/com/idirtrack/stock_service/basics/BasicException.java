@@ -1,9 +1,11 @@
 package com.idirtrack.stock_service.basics;
 
-import lombok.Getter;
-import lombok.Setter;
-@Getter
-@Setter
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+
+
 public class BasicException extends Exception{
   private BasicResponse response;
 
