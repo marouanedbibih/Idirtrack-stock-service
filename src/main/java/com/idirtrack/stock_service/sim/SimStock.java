@@ -20,8 +20,8 @@ public class SimStock {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "sim_type_id")
-    private SimType simType;
+    @JoinColumn(name = "operator_id")
+    private Operator operator;
 
     @OneToOne
     @JoinColumn(name = "stock_id")

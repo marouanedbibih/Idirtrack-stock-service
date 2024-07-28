@@ -42,15 +42,20 @@ public class Sim {
     private String ccid;
 
     @ManyToOne
-    @JoinColumn(name = "sim_type_id")
-    private SimType simType;
+    @JoinColumn(name = "operator_id")
+    private Operator operator;
 
-    @Column(name = "phone_number", nullable = false)
-    private String phoneNumber;
+    @Column(name = "phone", nullable = false)
+    private String phone;
 
-    @Column(name = "add_date")
+    @Column(name = "created_at")
     @Temporal(TemporalType.DATE)
-    private Date addDate;
+    private Date createdAt;
+
+    @Column(name = "updated_at")
+    @Temporal(TemporalType.DATE)
+    private Date updatedAt;
+
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
