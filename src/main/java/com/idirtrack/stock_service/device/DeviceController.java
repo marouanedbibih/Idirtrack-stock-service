@@ -157,7 +157,7 @@ public class DeviceController {
     }
 
     //get list of devices by status non-installed
-    @GetMapping("/device-create-boitier/")
+    @GetMapping("/not-installed/")
 
     public ResponseEntity<BasicResponse> getNonInstalledDevicesApi(@RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size) {
@@ -165,7 +165,7 @@ public class DeviceController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
     //search device non installed by imei
-    @GetMapping("/device-create-boitier/search/")
+    @GetMapping("/not-installed/search/")
 
     public ResponseEntity<BasicResponse> searchNonInstalledDevicesApi(@RequestParam(value = "imei", required = false) String imei,
             @RequestParam(value = "page", defaultValue = "0") int page,
