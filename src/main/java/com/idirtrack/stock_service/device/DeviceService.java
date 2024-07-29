@@ -382,8 +382,8 @@ public class DeviceService {
         }
     }
 
-    // Search devices with pagination
-    public BasicResponse searchDevices(String imei, String typeDevice, String status, Date date, int page, int size) {
+    // filtr devices with pagination
+    public BasicResponse filterDevices(String imei, String deviceType, String status,  Date createdTo ,Date createdFrom, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         Specification<Device> specification = (root, query, criteriaBuilder) -> {
@@ -393,17 +393,23 @@ public class DeviceService {
                 predicates.add(criteriaBuilder.equal(root.get("imei"), imei));
             }
 
-            if (typeDevice != null && !typeDevice.isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("deviceType").get("name"), typeDevice));
+            if (deviceType != null && !deviceType.isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.get("deviceType").get("name"), deviceType));
             }
 
             if (status != null && !status.isEmpty()) {
                 predicates.add(criteriaBuilder.equal(root.get("status"), DeviceStatus.valueOf(status)));
             }
-
-            if (date != null) {
-                predicates.add(criteriaBuilder.equal(root.get("createdAt"), date));
+            // Filter by created date between createdFrom and createdTo
+            if (createdFrom != null && createdTo != null) {
+                predicates.add(criteriaBuilder.between(root.get("createdAt"), createdTo,createdFrom ));
             }
+            //filter by created date createdFrom null  take current date
+            if (createdFrom == null && createdTo != null) {
+                predicates.add(criteriaBuilder.between(root.get("createdAt"), createdTo,new Date(System.currentTimeMillis()) ));
+            } 
+            
+           
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
@@ -413,7 +419,7 @@ public class DeviceService {
             return BasicResponse.builder()
                     .content(null)
                     .status(HttpStatus.NOT_FOUND)
-                    .message("No devices found")
+                    .message("No devices found with the provided filter criteria.")
                     .messageType(MessageType.ERROR)
                     .metadata(null)
                     .build();
@@ -424,6 +430,9 @@ public class DeviceService {
                         .id(device.getId())
                         .IMEI(device.getImei())
                         .deviceType(device.getDeviceType().getName())
+                        .createAt(device.getCreatedAt())
+                        .updateAt(device.getUpdatedAt())
+                        .deviceTypeId(device.getDeviceType().getId())
                         .remarque(device.getRemarque())
                         .status(device.getStatus())
                         .build())
@@ -437,7 +446,6 @@ public class DeviceService {
 
         Map<String, Object> data = new HashMap<>();
         data.put("devices", deviceDTOs);
-        data.put("metadata", metaData);
 
         return BasicResponse.builder()
                 .content(data)
