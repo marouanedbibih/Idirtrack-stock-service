@@ -173,13 +173,13 @@ public class SimController {
     }
 
     // // Search non-installed SIMs by phone number or CCID
-    @GetMapping("/non-installed-sims/search/")
+    @GetMapping("/pending/search/")
     public ResponseEntity<BasicResponse> searchNonInstalledSimsApi(
             @RequestParam(value = "query", required = false) String query,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         try {
-            BasicResponse response = simService.searchNonInstalledSims(query, page, size);
+            BasicResponse response = simService.searchPendingSims(query, page, size);
             return ResponseEntity.status(response.getStatus()).body(response);
 
         } catch (BasicException e) {
