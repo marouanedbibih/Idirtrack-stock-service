@@ -157,12 +157,19 @@ public class SimController {
     // return ResponseEntity.status(response.getStatus()).body(response);
     // }
 
-    @GetMapping("/non-installed-sims/")
-
+    @GetMapping("/pending/")
     public ResponseEntity<BasicResponse> getNonInstalledSimsApi(@RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size) {
-        BasicResponse response = simService.getAllNonInstalledSims(page, size);
-        return ResponseEntity.status(response.getStatus()).body(response);
+        try {
+            BasicResponse response = simService.getAllPendingSims(page, size);
+            return ResponseEntity.status(response.getStatus()).body(response);
+        } catch (BasicException e) {
+            return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder().content(null)
+                    .message(e.getMessage()).messageType(MessageType.ERROR).status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build());
+        }
     }
 
     // // Search non-installed SIMs by phone number or CCID

@@ -535,13 +535,23 @@ public class SimService {
          * @param size
          * @return
          */
-        public BasicResponse getAllNonInstalledSims(int page, int size) {
+        public BasicResponse getAllPendingSims(int page, int size) throws BasicException {
                 // Create pagination request
                 Pageable pageRequest = PageRequest.of(page - 1, size);
 
-                // Find list od sims with status Pending
+                // Find list of sims with status Pending
                 Page<Sim> simPage = simRepository.findAllByStatus(SimStatus.PENDING,
                                 pageRequest);
+
+                // Return error if no SIMs found
+                if (simPage.isEmpty()) {
+                        throw new BasicException(BasicResponse.builder()
+                                        .content(null)
+                                        .message("No non-installed SIMs found")
+                                        .messageType(MessageType.INFO)
+                                        .status(HttpStatus.NOT_FOUND)
+                                        .build());
+                }
 
                 // Build list of SimBoitierDTO
                 List<SimBoitierDTO> simDTOs = simPage.getContent().stream()
@@ -549,12 +559,12 @@ public class SimService {
                                                 .simMicroserviceId(sim.getId())
                                                 .phone(sim.getPhone())
                                                 .ccid(sim.getCcid())
-                                                .operator(sim.getOperator().getName())
+                                                .operatorName(sim.getOperator().getName())
                                                 .build())
                                 .collect(Collectors.toList());
 
                 // Build metadata content current page, total pages and size
-                MetaData metaData = MetaData.builder()
+                MetaData metadata = MetaData.builder()
                                 .currentPage(simPage.getNumber() + 1)
                                 .totalPages(simPage.getTotalPages())
                                 .size(simPage.getSize())
@@ -563,10 +573,8 @@ public class SimService {
                 // Return response
                 return BasicResponse.builder()
                                 .content(simDTOs)
-                                .message("SIMs retrieved successfully")
-                                .messageType(MessageType.SUCCESS)
                                 .status(HttpStatus.OK)
-                                .metadata(metaData)
+                                .metadata(metadata)
                                 .build();
         }
 
@@ -599,7 +607,7 @@ public class SimService {
                                                 .simMicroserviceId(sim.getId())
                                                 .phone(sim.getPhone())
                                                 .ccid(sim.getCcid())
-                                                .operator(sim.getOperator().getName())
+                                                .operatorName(sim.getOperator().getName())
                                                 .build())
                                 .collect(Collectors.toList());
 
