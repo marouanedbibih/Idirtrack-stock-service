@@ -118,17 +118,21 @@ public class DeviceController {
     }
 
     // Search Devices API
-    @GetMapping("/filter/")
-    public ResponseEntity<BasicResponse> searchDevicesApi(@RequestParam(value = "imei", required = false) String imei,
-                                                          @RequestParam(value = "typeDevice", required = false) String typeDevice,
+    @GetMapping("/filter")
+    public ResponseEntity<BasicResponse> filterDevicesApi(@RequestParam(value = "imei", required = false) String imei,
+                                                          @RequestParam(value = "type", required = false) String deviceType,
                                                           @RequestParam(value = "status", required = false) String status,
-                                                          @RequestParam(value = "date", required = false) String dateString,
+                                                          @RequestParam(value = "createdTo", required = false) String createdTo,
+                                                          @RequestParam(value = "createdFrom", required = false) String createdFrom,
                                                           @RequestParam(value = "page", defaultValue = "1") int page,
-                                                          @RequestParam(value = "size", defaultValue = "10") int size) {
-        Date date = null;
-        if (dateString != null && !dateString.isEmpty()) {
+                                                          @RequestParam(value = "size", defaultValue = "5") int size) {
+        Date dateAt = null;
+        Date dateFrom = null;
+     
+        if (createdTo != null && !createdTo.isEmpty() && createdFrom != null && !createdFrom.isEmpty()) {
             try {
-                date = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(dateString).getTime());
+                dateAt = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(createdTo).getTime());
+                dateFrom = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(createdFrom).getTime());
             } catch (ParseException e) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(BasicResponse.builder()
                     .content(null)
@@ -139,8 +143,9 @@ public class DeviceController {
                     .build());
             }
         }
+        
 
-        BasicResponse response = deviceService.searchDevices(imei, typeDevice, status, date, page, size);
+        BasicResponse response = deviceService.filterDevices(imei, deviceType, status, dateAt, dateFrom, page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
