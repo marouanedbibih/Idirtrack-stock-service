@@ -578,25 +578,28 @@ public class SimService {
                                 .build();
         }
 
-        // /**
-        // * Search non-installed SIMs by phone number or CCID
-        // *
-        // * @param query
-        // * @param page
-        // * @param size
-        // * @return
-        // */
-        public BasicResponse searchNonInstalledSims(String query, int page, int size) throws BasicException {
+        /**
+        * Search non-installed SIMs by phone number or CCID
+        *
+        * @param query
+        * @param page
+        * @param size
+        * @return
+        */
+        public BasicResponse searchPendingSims(String query, int page, int size) throws BasicException {
                 // Create pagination
                 Pageable pageable = PageRequest.of(page - 1, size);
+
+                // Find SIMs with status Pending and phone number or CCID containing query
                 Page<Sim> simPage = simRepository.findAllByStatusAndPhoneContainingOrCcidContaining(
                                 SimStatus.PENDING, query, pageable);
 
+                // Return error if no SIMs found
                 if (simPage.isEmpty()) {
                         throw new BasicException(BasicResponse.builder()
                                         .content(null)
                                         .message("No non-installed SIMs found")
-                                        .messageType(MessageType.ERROR)
+                                        .messageType(MessageType.INFO)
                                         .status(HttpStatus.NOT_FOUND)
                                         .build());
                 }
@@ -619,8 +622,6 @@ public class SimService {
                 // Return response
                 return BasicResponse.builder()
                                 .content(simDTOs)
-                                .message("SIMs retrieved successfully")
-                                .messageType(MessageType.SUCCESS)
                                 .status(HttpStatus.OK)
                                 .metadata(metadata)
                                 .build();
