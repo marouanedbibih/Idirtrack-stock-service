@@ -37,5 +37,8 @@ public interface DeviceRepository  extends JpaRepository<Device, Long>{
     // Check if the device type already exists by id
     boolean existsById(Long id);
 
+    //search device by imei
+    Page<Device> findByImeiContaining(String imei, Pageable pageable);
+
   
 }

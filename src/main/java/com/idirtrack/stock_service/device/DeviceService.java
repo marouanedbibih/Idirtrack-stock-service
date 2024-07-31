@@ -543,12 +543,54 @@ public class DeviceService {
 
         return BasicResponse.builder()
                 .content(deviceDTOs)
-                .metadata(metaData)
-                .content(deviceDTOs)
+                // .content(deviceDTOs)
 
                 .status(HttpStatus.OK)
                 .message("Non-installed devices retrieved successfully")
                 .messageType(MessageType.SUCCESS)
+                .metadata(metaData)
+                .build();
+    }
+
+    //search device by imei
+    public BasicResponse searchDevices(String imei, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Device> devicePage = deviceRepository.findByImeiContaining(imei, pageable);
+
+        if (devicePage.isEmpty()) {
+            return BasicResponse.builder()
+                    .content(null)
+                    .status(HttpStatus.NOT_FOUND)
+                    .message("No devices found")
+                    .messageType(MessageType.ERROR)
+                    .metadata(null)
+                    .build();
+        }
+
+        List<DeviceDTO> deviceDTOs = devicePage.getContent().stream()
+                .map(device -> DeviceDTO.builder()
+                        .id(device.getId())
+                        .IMEI(device.getImei())
+                        .deviceType(device.getDeviceType().getName())
+                        .createAt(device.getCreatedAt())
+                        .updateAt(device.getUpdatedAt())
+                        .deviceTypeId(device.getDeviceType().getId())
+                        .remarque(device.getRemarque())
+                        .status(device.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+
+        MetaData metaData = MetaData.builder()
+                .currentPage(devicePage.getNumber() + 1)
+                .totalPages(devicePage.getTotalPages())
+                .size(devicePage.getSize())
+                .build();
+
+        
+        return BasicResponse.builder()
+                .content(deviceDTOs)
+                .status(HttpStatus.OK)
+                .message("Devices retrieved successfully")
                 .metadata(metaData)
                 .build();
     }
