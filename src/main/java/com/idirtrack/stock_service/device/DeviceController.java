@@ -168,7 +168,7 @@ public class DeviceController {
     @GetMapping("/not-installed/search/")
 
     public ResponseEntity<BasicResponse> searchNonInstalledDevicesApi(@RequestParam(value = "imei", required = false) String imei,
-            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "5") int size) {
         BasicResponse response = deviceService.searchNonInstalledDevices(imei, page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
@@ -215,13 +215,14 @@ public class DeviceController {
                 .build());
         }
     }
+     //Search Device by IMEI API
+     @GetMapping("/search")
+     public ResponseEntity<BasicResponse> searchDeviceByImeiApi(@RequestParam(value = "imei") String imei,
+                                                                @RequestParam(value = "page", defaultValue = "1") int page,
+                                                                @RequestParam(value = "size", defaultValue = "5") int size) {
+         BasicResponse response = deviceService.searchDevices(imei, page, size);
+         return ResponseEntity.status(response.getStatus()).body(response);
+     }
+ }
+ 
 
-    //Search Device by IMEI API
-    @GetMapping("/search")
-    public ResponseEntity<BasicResponse> searchDeviceByImeiApi(@RequestParam(value = "imei") String imei,
-                                                               @RequestParam(value = "page", defaultValue = "1") int page,
-                                                               @RequestParam(value = "size", defaultValue = "5") int size) {
-        BasicResponse response = deviceService.searchDevices(imei, page, size);
-        return ResponseEntity.status(response.getStatus()).body(response);
-    }
-}
