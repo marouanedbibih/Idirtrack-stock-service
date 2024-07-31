@@ -191,4 +191,29 @@ public class DeviceController {
                 .build());
         }
     }
+
+    /**
+     * Endpoint to chnage the status of device
+     * @param id
+     * @param status
+     * @return ResponseEntity<BasicResponse>
+     */
+
+    @PutMapping("/status/")
+    public ResponseEntity<BasicResponse> changeDeviceStatusApi(@RequestParam Long id, @RequestParam String status) {
+        try {
+            BasicResponse response = deviceService.changeDeviceStatus(id, status);
+            return ResponseEntity.status(response.getStatus()).body(response);
+        } catch (BasicException e) {
+            return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
+                .content(null)
+                .message(e.getMessage())
+                .messageType(MessageType.ERROR)
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .build());
+        }
+    }
+
 }
