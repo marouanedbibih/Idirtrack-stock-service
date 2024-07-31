@@ -168,7 +168,7 @@ public class DeviceController {
     @GetMapping("/not-installed/search/")
 
     public ResponseEntity<BasicResponse> searchNonInstalledDevicesApi(@RequestParam(value = "imei", required = false) String imei,
-            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "5") int size) {
         BasicResponse response = deviceService.searchNonInstalledDevices(imei, page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
@@ -192,12 +192,37 @@ public class DeviceController {
         }
     }
 
-    //Search Device by IMEI API
-    @GetMapping("/search")
-    public ResponseEntity<BasicResponse> searchDeviceByImeiApi(@RequestParam(value = "imei") String imei,
-                                                               @RequestParam(value = "page", defaultValue = "1") int page,
-                                                               @RequestParam(value = "size", defaultValue = "5") int size) {
-        BasicResponse response = deviceService.searchDevices(imei, page, size);
-        return ResponseEntity.status(response.getStatus()).body(response);
+    /**
+     * Endpoint to chnage the status of device
+     * @param id
+     * @param status
+     * @return ResponseEntity<BasicResponse>
+     */
+
+    @PutMapping("/status/")
+    public ResponseEntity<BasicResponse> changeDeviceStatusApi(@RequestParam Long id, @RequestParam String status) {
+        try {
+            BasicResponse response = deviceService.changeDeviceStatus(id, status);
+            return ResponseEntity.status(response.getStatus()).body(response);
+        } catch (BasicException e) {
+            return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
+                .content(null)
+                .message(e.getMessage())
+                .messageType(MessageType.ERROR)
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .build());
+        }
     }
-}
+     //Search Device by IMEI API
+     @GetMapping("/search")
+     public ResponseEntity<BasicResponse> searchDeviceByImeiApi(@RequestParam(value = "imei") String imei,
+                                                                @RequestParam(value = "page", defaultValue = "1") int page,
+                                                                @RequestParam(value = "size", defaultValue = "5") int size) {
+         BasicResponse response = deviceService.searchDevices(imei, page, size);
+         return ResponseEntity.status(response.getStatus()).body(response);
+     }
+ }
+ 
+

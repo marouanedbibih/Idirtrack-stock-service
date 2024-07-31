@@ -122,7 +122,7 @@ public class DeviceService {
                         .status(HttpStatus.NOT_FOUND)
                         .metadata(null)
                         .build()));
-        
+
         // Check if the imei is different from the current one
         if (!existingDevice.getImei().equals(request.getImei())) {
             // Check if the new imei already exists in another device
@@ -383,7 +383,8 @@ public class DeviceService {
     }
 
     // filtr devices with pagination
-    public BasicResponse filterDevices(String imei, String deviceType, String status,  Date createdTo ,Date createdFrom, int page, int size) {
+    public BasicResponse filterDevices(String imei, String deviceType, String status, Date createdTo, Date createdFrom,
+            int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         Specification<Device> specification = (root, query, criteriaBuilder) -> {
@@ -402,14 +403,13 @@ public class DeviceService {
             }
             // Filter by created date between createdFrom and createdTo
             if (createdFrom != null && createdTo != null) {
-                predicates.add(criteriaBuilder.between(root.get("createdAt"), createdTo,createdFrom ));
+                predicates.add(criteriaBuilder.between(root.get("createdAt"), createdTo, createdFrom));
             }
-            //filter by created date createdFrom null  take current date
+            // filter by created date createdFrom null take current date
             if (createdFrom == null && createdTo != null) {
-                predicates.add(criteriaBuilder.between(root.get("createdAt"), createdTo,new Date(System.currentTimeMillis()) ));
-            } 
-            
-           
+                predicates.add(criteriaBuilder.between(root.get("createdAt"), createdTo,
+                        new Date(System.currentTimeMillis())));
+            }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
@@ -616,6 +616,36 @@ public class DeviceService {
                 .messageType(MessageType.SUCCESS)
                 .status(HttpStatus.OK)
                 .build();
+    }
+
+    public BasicResponse changeDeviceStatus(Long id, String status) throws BasicException {
+        // Find the device
+        Device device = deviceRepository.findById(id).orElseThrow(
+                () -> new BasicException(BasicResponse.builder()
+                        .content(null)
+                        .message("Device not found")
+                        .messageType(MessageType.ERROR)
+                        .status(HttpStatus.NOT_FOUND)
+                        .build()));
+
+        // Check if the status is valid by checking the enum
+        try {
+            DeviceStatus deviceStatus = DeviceStatus.valueOf(status.toUpperCase());
+            device.setStatus(deviceStatus);
+            device = deviceRepository.save(device);
+            return BasicResponse.builder()
+                    .message("Device status changed successfully")
+                    .messageType(MessageType.SUCCESS)
+                    .status(HttpStatus.OK)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            throw new BasicException(BasicResponse.builder()
+                    .content(null)
+                    .message("Invalid status")
+                    .messageType(MessageType.ERROR)
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build());
+        }
     }
 
 }
