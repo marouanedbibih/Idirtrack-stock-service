@@ -7,5 +7,7 @@ import com.idirtrack.stock_service.stock.Stock;
 
 @Repository
 public interface SimStockRepository extends JpaRepository<SimStock, Long> {
-    SimStock findByStockAndSimType(Stock stock, SimType simType);
+
+    SimStock findByStockAndOperator(Stock stock, Operator operator);
+
 }

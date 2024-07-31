@@ -1,10 +1,8 @@
 package com.idirtrack.stock_service.sim;
 
 import java.sql.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +19,10 @@ import com.idirtrack.stock_service.sim.https.SimTypeRequest;
 import jakarta.validation.Valid;
 
 @Service
-public class SimTypeService {
+public class OperatorService {
 
     @Autowired
-    private SimTypeRepository simTypeRepository;
+    private OperatorRepository operatorRepository;
 
     public BasicResponse createSimType(@Valid SimTypeRequest request, BindingResult bindingResult) throws BasicException {
         // Validate the request
@@ -41,26 +39,26 @@ public class SimTypeService {
         }
 
         // Check if the SIM type already exists
-        if (simTypeRepository.existsByType(request.getType())) {
+        if (operatorRepository.existsByName(request.getType())) {
             messagesList.put("type", "SIM type with this name already exists");
             throw new BasicException(BasicResponse.builder()
                     .content(null)
                     .message("SIM type already exists")
                     .messagesObject(messagesList)
                     .messageType(MessageType.ERROR)
-                    .status(HttpStatus.BAD_REQUEST)
+                    .status(HttpStatus.CONFLICT)
                     .redirectUrl(null)
                     .build());
         }
 
         // Transform the request to entity
-        SimType simType = SimType.builder()
-                .type(request.getType())
+        Operator simType = Operator.builder()
+                .name(request.getType())
                 .createdAt(new Date(System.currentTimeMillis()))
                 .build();
 
         // Save the SIM type entity
-        simType = simTypeRepository.save(simType);
+        simType = operatorRepository.save(simType);
 
         // Return a success response
         return BasicResponse.builder()
@@ -88,29 +86,29 @@ public class SimTypeService {
             }
 
             // Check if the SIM type already exists
-            if (simTypeRepository.existsByType(request.getType())) {
+            if (operatorRepository.existsByName(request.getType())) {
                 messagesList.put("type", "SIM type with this name already exists");
                 throw new BasicException(BasicResponse.builder()
                         .content(null)
                         .message("SIM type already exists")
                         .messagesObject(messagesList)
                         .messageType(MessageType.ERROR)
-                        .status(HttpStatus.BAD_REQUEST)
+                        .status(HttpStatus.CONFLICT)
                         .redirectUrl(null)
                         .build());
             }
         }
 
         // Transform the request to entity and save
-        List<SimType> simTypes = requests.stream()
-                .map(request -> SimType.builder()
-                        .type(request.getType())
+        List<Operator> simTypes = requests.stream()
+                .map(request -> Operator.builder()
+                        .name(request.getType())
                         .createdAt(new Date(System.currentTimeMillis()))
                         .build())
                 .collect(Collectors.toList());
 
         // Save all SIM types
-        simTypes = simTypeRepository.saveAll(simTypes);
+        simTypes = operatorRepository.saveAll(simTypes);
 
         // Return a success response
         return BasicResponse.builder()
@@ -137,7 +135,7 @@ public class SimTypeService {
         }
 
         // Check if the SIM type exists
-        SimType existingSimType = simTypeRepository.findById(id)
+        Operator existingSimType = operatorRepository.findById(id)
                 .orElseThrow(() -> new BasicException(BasicResponse.builder()
                         .content(null)
                         .message("SIM type not found")
@@ -147,23 +145,23 @@ public class SimTypeService {
                         .redirectUrl(null)
                         .build()));
 
-        if (simTypeRepository.existsByType(request.getType()) && !existingSimType.getType().equals(request.getType())) {
+        if (operatorRepository.existsByName(request.getType()) && !existingSimType.getName().equals(request.getType())) {
             messagesList.put("type", "SIM type with this name already exists");
             throw new BasicException(BasicResponse.builder()
                     .content(null)
                     .message("SIM type already exists")
                     .messagesObject(messagesList)
                     .messageType(MessageType.ERROR)
-                    .status(HttpStatus.BAD_REQUEST)
+                    .status(HttpStatus.CONFLICT)
                     .redirectUrl(null)
                     .build());
         }
 
         // Update the SIM type
-        existingSimType.setType(request.getType());
+        existingSimType.setName(request.getType());
 
         // Save the updated SIM type
-        SimType updatedSimType = simTypeRepository.save(existingSimType);
+        Operator updatedSimType = operatorRepository.save(existingSimType);
 
         // Return a success response
         return BasicResponse.builder()
@@ -178,7 +176,7 @@ public class SimTypeService {
     public BasicResponse deleteSimTypes(List<Long> ids) throws BasicException {
         // Check if each SIM type exists before deleting
         for (Long id : ids) {
-            SimType simType = simTypeRepository.findById(id)
+            Operator simType = operatorRepository.findById(id)
                     .orElseThrow(() -> new BasicException(BasicResponse.builder()
                             .content(null)
                             .message("SIM type not found: " + id)
@@ -188,7 +186,7 @@ public class SimTypeService {
                             .redirectUrl(null)
                             .build()));
 
-            simTypeRepository.delete(simType);
+            operatorRepository.delete(simType);
         }
 
         // Return a success response
@@ -202,7 +200,7 @@ public class SimTypeService {
     }
 
     public BasicResponse getAllSimTypes() {
-        List<SimType> simTypes = simTypeRepository.findAll();
+        List<Operator> simTypes = operatorRepository.findAll();
         return BasicResponse.builder()
                 .content(simTypes)
                 .message("SIM types retrieved successfully")
@@ -212,7 +210,7 @@ public class SimTypeService {
     }
 
     public BasicResponse getSimTypeById(Long id) throws BasicException {
-        SimType simType = simTypeRepository.findById(id)
+        Operator simType = operatorRepository.findById(id)
                 .orElseThrow(() -> new BasicException(BasicResponse.builder()
                         .content(null)
                         .message("SIM type not found")
@@ -229,76 +227,3 @@ public class SimTypeService {
                 .build();
     }
 }
-
-
-
-
-// package com.idirtrack.stock_service.sim;
-
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.http.HttpStatus;
-// import org.springframework.stereotype.Service;
-// import org.springframework.validation.BindingResult;
-
-// import com.idirtrack.stock_service.basics.BasicException;
-// import com.idirtrack.stock_service.basics.BasicResponse;
-// import com.idirtrack.stock_service.basics.BasicValidation;
-// import com.idirtrack.stock_service.basics.MessageType;
-// import com.idirtrack.stock_service.sim.https.SimTypeRequest;
-
-// import java.util.HashMap;
-// import java.util.Map;
-
-// @Service
-// public class SimTypeService {
-
-//     @Autowired
-//     private SimTypeRepository simTypeRepository;
-
-//     // Save SIM type
-//     public BasicResponse createSimType(SimTypeRequest request, BindingResult bindingResult) throws BasicException {
-//         // Validate the request
-//         Map<String, String> messagesList = BasicValidation.getValidationsErrors(bindingResult);
-//         if (!messagesList.isEmpty()) {
-//             throw new BasicException(BasicResponse.builder()
-//                     .content(null)
-//                     .message("Validation Error")
-//                     .messagesObject(messagesList)
-//                     .messageType(MessageType.ERROR)
-//                     .status(HttpStatus.BAD_REQUEST)
-//                     .redirectUrl(null)
-//                     .build());
-//         }
-
-//         // Check if the SIM type already exists
-//         if (simTypeRepository.existsByType(request.getType())) {
-//             messagesList.put("type", "SIM type with this name already exists");
-//             throw new BasicException(BasicResponse.builder()
-//                     .content(null)
-//                     .message("SIM type already exists")
-//                     .messagesObject(messagesList)
-//                     .messageType(MessageType.ERROR)
-//                     .status(HttpStatus.BAD_REQUEST)
-//                     .redirectUrl(null)
-//                     .build());
-//         }
-
-//         // Transform the request to entity
-//         SimType simType = SimType.builder()
-//                 .type(request.getType())
-//                 .build();
-
-//         // Save the SIM type entity
-//         simType = simTypeRepository.save(simType);
-
-//         // Return a success response
-//         return BasicResponse.builder()
-//                 .content(simType)
-//                 .message("SIM type created successfully")
-//                 .messageType(MessageType.SUCCESS)
-//                 .status(HttpStatus.CREATED)
-//                 .redirectUrl("/sim-types")
-//                 .build();
-//     }
-// }
-
