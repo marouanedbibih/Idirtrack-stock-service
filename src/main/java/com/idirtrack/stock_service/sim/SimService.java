@@ -37,13 +37,7 @@ public class SimService {
     @Autowired
     private OperatorRepository operatorRepository;
 
-    private void handleBindingErrors(BindingResult bindingResult) throws BasicException {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = BasicValidation.getValidationsErrors(bindingResult);
-            throw new BasicException(new BasicResponse(null, "Validation error", errors, MessageType.ERROR,
-                    null, HttpStatus.BAD_REQUEST, null));
-        }
-    }
+ 
     public BasicResponse createSim(@Valid SimRequest simRequest) throws BasicException {
         if (simRepository.existsByPhone(simRequest.getPhone())) {
             throw new BasicException(BasicResponse.builder()
@@ -297,6 +291,7 @@ public class SimService {
         existingSim.setPhone(simUpdateRequest.getPhone());
         existingSim.setUpdatedAt(new Date(System.currentTimeMillis()));
 
+
         existingSim = simRepository.save(existingSim);
 
         SimDTO simDTO = SimDTO.builder()
@@ -436,4 +431,5 @@ public class SimService {
                 .status(HttpStatus.OK)
                 .build();
     }
+
 }

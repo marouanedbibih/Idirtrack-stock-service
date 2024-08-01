@@ -26,3 +26,5 @@ public interface SimRepository extends JpaRepository<Sim, Long>, JpaSpecificatio
 
     long countByStatus(SimStatus pending);
 }
+
+

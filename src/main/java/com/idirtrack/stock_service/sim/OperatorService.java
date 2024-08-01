@@ -3,6 +3,7 @@ package com.idirtrack.stock_service.sim;
 import java.sql.Date;
 import java.util.List;
 import java.util.Map;
+
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -199,10 +200,20 @@ public class OperatorService {
                 .build();
     }
 
+
+
     public BasicResponse getAllSimTypes() {
-        List<Operator> simTypes = operatorRepository.findAll();
+        List<Operator> operators = operatorRepository.findAll();
+
+        // Build Operator DTOs
+        List<OperatorDTO> operatorDTOs = operators.stream()
+                .map(operator -> OperatorDTO.builder()
+                        .id(operator.getId())
+                        .name(operator.getName())
+                        .build())
+                .collect(Collectors.toList());
         return BasicResponse.builder()
-                .content(simTypes)
+                .content(operatorDTOs)
                 .message("SIM types retrieved successfully")
                 .messageType(MessageType.SUCCESS)
                 .status(HttpStatus.OK)

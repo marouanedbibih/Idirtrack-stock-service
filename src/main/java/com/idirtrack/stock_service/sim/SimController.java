@@ -1,5 +1,6 @@
 package com.idirtrack.stock_service.sim;
 
+
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,7 +103,6 @@ public class SimController {
                     .message(e.getMessage()).messageType(MessageType.ERROR).status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build());
         }
-
     }
 
     @DeleteMapping("/{id}/")
@@ -119,11 +119,23 @@ public class SimController {
         }
     }
 
-    @GetMapping("/non-installed-sims/")
+   
+
+ 
+
+    @GetMapping("/pending/")
     public ResponseEntity<BasicResponse> getNonInstalledSimsApi(@RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size) {
-        BasicResponse response = simService.getAllNonInstalledSims(page, size);
-        return ResponseEntity.status(response.getStatus()).body(response);
+        try {
+            BasicResponse response = simService.getAllPendingSims(page, size);
+            return ResponseEntity.status(response.getStatus()).body(response);
+        } catch (BasicException e) {
+            return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder().content(null)
+                    .message(e.getMessage()).messageType(MessageType.ERROR).status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build());
+        }
     }
 
     @GetMapping("/non-installed-sims/search/")
@@ -133,6 +145,7 @@ public class SimController {
             @RequestParam(value = "size", defaultValue = "10") int size) {
         try {
             BasicResponse response = simService.searchNonInstalledSims(query, page, size);
+
             return ResponseEntity.status(response.getStatus()).body(response);
 
         } catch (BasicException e) {

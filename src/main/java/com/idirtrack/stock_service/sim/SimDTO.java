@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SimDTO {
+    // Sim data
     private Long id;
     private String pin;
     private String puk;
@@ -22,4 +23,5 @@ public class SimDTO {
     private Date updatedAt;
     private Long operatorId;
     private String operatorName;
+
 }

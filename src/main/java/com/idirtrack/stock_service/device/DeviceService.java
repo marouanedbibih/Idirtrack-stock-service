@@ -122,7 +122,7 @@ public class DeviceService {
                         .status(HttpStatus.NOT_FOUND)
                         .metadata(null)
                         .build()));
-        
+
         // Check if the imei is different from the current one
         if (!existingDevice.getImei().equals(request.getImei())) {
             // Check if the new imei already exists in another device
@@ -382,8 +382,9 @@ public class DeviceService {
         }
     }
 
-    // Search devices with pagination
-    public BasicResponse searchDevices(String imei, String typeDevice, String status, Date date, int page, int size) {
+    // filtr devices with pagination
+    public BasicResponse filterDevices(String imei, String deviceType, String status, Date createdTo, Date createdFrom,
+            int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         Specification<Device> specification = (root, query, criteriaBuilder) -> {
@@ -393,16 +394,21 @@ public class DeviceService {
                 predicates.add(criteriaBuilder.equal(root.get("imei"), imei));
             }
 
-            if (typeDevice != null && !typeDevice.isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("deviceType").get("name"), typeDevice));
+            if (deviceType != null && !deviceType.isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.get("deviceType").get("name"), deviceType));
             }
 
             if (status != null && !status.isEmpty()) {
                 predicates.add(criteriaBuilder.equal(root.get("status"), DeviceStatus.valueOf(status)));
             }
-
-            if (date != null) {
-                predicates.add(criteriaBuilder.equal(root.get("createdAt"), date));
+            // Filter by created date between createdFrom and createdTo
+            if (createdFrom != null && createdTo != null) {
+                predicates.add(criteriaBuilder.between(root.get("createdAt"), createdTo, createdFrom));
+            }
+            // filter by created date createdFrom null take current date
+            if (createdFrom == null && createdTo != null) {
+                predicates.add(criteriaBuilder.between(root.get("createdAt"), createdTo,
+                        new Date(System.currentTimeMillis())));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
@@ -413,7 +419,7 @@ public class DeviceService {
             return BasicResponse.builder()
                     .content(null)
                     .status(HttpStatus.NOT_FOUND)
-                    .message("No devices found")
+                    .message("No devices found with the provided filter criteria.")
                     .messageType(MessageType.ERROR)
                     .metadata(null)
                     .build();
@@ -424,6 +430,9 @@ public class DeviceService {
                         .id(device.getId())
                         .IMEI(device.getImei())
                         .deviceType(device.getDeviceType().getName())
+                        .createAt(device.getCreatedAt())
+                        .updateAt(device.getUpdatedAt())
+                        .deviceTypeId(device.getDeviceType().getId())
                         .remarque(device.getRemarque())
                         .status(device.getStatus())
                         .build())
@@ -437,7 +446,6 @@ public class DeviceService {
 
         Map<String, Object> data = new HashMap<>();
         data.put("devices", deviceDTOs);
-        data.put("metadata", metaData);
 
         return BasicResponse.builder()
                 .content(data)
@@ -535,12 +543,54 @@ public class DeviceService {
 
         return BasicResponse.builder()
                 .content(deviceDTOs)
-                .metadata(metaData)
-                .content(deviceDTOs)
+                // .content(deviceDTOs)
 
                 .status(HttpStatus.OK)
                 .message("Non-installed devices retrieved successfully")
                 .messageType(MessageType.SUCCESS)
+                .metadata(metaData)
+                .build();
+    }
+
+    //search device by imei
+    public BasicResponse searchDevices(String imei, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Device> devicePage = deviceRepository.findByImeiContaining(imei, pageable);
+
+        if (devicePage.isEmpty()) {
+            return BasicResponse.builder()
+                    .content(null)
+                    .status(HttpStatus.NOT_FOUND)
+                    .message("No devices found")
+                    .messageType(MessageType.ERROR)
+                    .metadata(null)
+                    .build();
+        }
+
+        List<DeviceDTO> deviceDTOs = devicePage.getContent().stream()
+                .map(device -> DeviceDTO.builder()
+                        .id(device.getId())
+                        .IMEI(device.getImei())
+                        .deviceType(device.getDeviceType().getName())
+                        .createAt(device.getCreatedAt())
+                        .updateAt(device.getUpdatedAt())
+                        .deviceTypeId(device.getDeviceType().getId())
+                        .remarque(device.getRemarque())
+                        .status(device.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+
+        MetaData metaData = MetaData.builder()
+                .currentPage(devicePage.getNumber() + 1)
+                .totalPages(devicePage.getTotalPages())
+                .size(devicePage.getSize())
+                .build();
+
+        
+        return BasicResponse.builder()
+                .content(deviceDTOs)
+                .status(HttpStatus.OK)
+                .message("Devices retrieved successfully")
                 .metadata(metaData)
                 .build();
     }
@@ -566,6 +616,36 @@ public class DeviceService {
                 .messageType(MessageType.SUCCESS)
                 .status(HttpStatus.OK)
                 .build();
+    }
+
+    public BasicResponse changeDeviceStatus(Long id, String status) throws BasicException {
+        // Find the device
+        Device device = deviceRepository.findById(id).orElseThrow(
+                () -> new BasicException(BasicResponse.builder()
+                        .content(null)
+                        .message("Device not found")
+                        .messageType(MessageType.ERROR)
+                        .status(HttpStatus.NOT_FOUND)
+                        .build()));
+
+        // Check if the status is valid by checking the enum
+        try {
+            DeviceStatus deviceStatus = DeviceStatus.valueOf(status.toUpperCase());
+            device.setStatus(deviceStatus);
+            device = deviceRepository.save(device);
+            return BasicResponse.builder()
+                    .message("Device status changed successfully")
+                    .messageType(MessageType.SUCCESS)
+                    .status(HttpStatus.OK)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            throw new BasicException(BasicResponse.builder()
+                    .content(null)
+                    .message("Invalid status")
+                    .messageType(MessageType.ERROR)
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build());
+        }
     }
 
 }

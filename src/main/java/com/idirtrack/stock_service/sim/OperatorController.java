@@ -16,15 +16,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import com.idirtrack.stock_service.basics.BasicException;
 import com.idirtrack.stock_service.basics.BasicResponse;
 import com.idirtrack.stock_service.basics.MessageType;
 import com.idirtrack.stock_service.sim.https.SimTypeRequest;
 
 import jakarta.validation.Valid;
-
 @RestController
 @RequestMapping("/stock-api/operators")
+
 public class OperatorController {
 
     @Autowired
@@ -98,7 +99,7 @@ public class OperatorController {
         }
     }
 
-    @GetMapping
+    @GetMapping("/")
     public ResponseEntity<BasicResponse> getAllSimTypes() {
         try {
             BasicResponse response = operatorService.getAllSimTypes();
@@ -129,4 +130,5 @@ public class OperatorController {
                     .build());
         }
     }
+
 }
