@@ -124,19 +124,25 @@ public class SimController {
  
 
     @GetMapping("/pending/")
-    public ResponseEntity<BasicResponse> getNonInstalledSimsApi(@RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "5") int size) {
-        try {
-            BasicResponse response = simService.getAllPendingSims(page, size);
-            return ResponseEntity.status(response.getStatus()).body(response);
-        } catch (BasicException e) {
-            return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder().content(null)
-                    .message(e.getMessage()).messageType(MessageType.ERROR).status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .build());
-        }
+public ResponseEntity<BasicResponse> getNonInstalledSimsApi(
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "5") int size) {
+    try {
+        BasicResponse response = simService.getAllNonInstalledSims(page, size);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    } catch (BasicException e) {
+        return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
+                .content(null)
+                .message(e.getMessage())
+                .messageType(MessageType.ERROR)
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .build());
     }
+}
+
+    
 
     @GetMapping("/non-installed-sims/search/")
     public ResponseEntity<BasicResponse> searchNonInstalledSimsApi(

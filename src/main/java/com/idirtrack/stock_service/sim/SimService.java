@@ -345,10 +345,10 @@ public class SimService {
                 .build();
     }
 
-    public BasicResponse getAllNonInstalledSims(int page, int size) {
+    public BasicResponse getAllNonInstalledSims(int page, int size) throws BasicException {
         Pageable pageRequest = PageRequest.of(page - 1, size);
         Page<Sim> simPage = simRepository.findAllByStatus(SimStatus.PENDING, pageRequest);
-
+    
         List<SimBoitierDTO> simDTOs = simPage.getContent().stream()
                 .map(sim -> SimBoitierDTO.builder()
                         .simMicroserviceId(sim.getId())
@@ -357,13 +357,13 @@ public class SimService {
                         .operator(sim.getOperator().getName())
                         .build())
                 .collect(Collectors.toList());
-
+    
         MetaData metaData = MetaData.builder()
                 .currentPage(simPage.getNumber() + 1)
                 .totalPages(simPage.getTotalPages())
                 .size(simPage.getSize())
                 .build();
-
+    
         return BasicResponse.builder()
                 .content(simDTOs)
                 .message("SIMs retrieved successfully")
@@ -372,6 +372,7 @@ public class SimService {
                 .metadata(metaData)
                 .build();
     }
+    
 
     public BasicResponse searchNonInstalledSims(String query, int page, int size) throws BasicException {
         Pageable pageable = PageRequest.of(page - 1, size);
