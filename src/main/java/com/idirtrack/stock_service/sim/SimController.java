@@ -1,9 +1,10 @@
 package com.idirtrack.stock_service.sim;
 
-import java.sql.Date;
+
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,8 +23,6 @@ import com.idirtrack.stock_service.basics.BasicValidation;
 import com.idirtrack.stock_service.basics.MessageType;
 import com.idirtrack.stock_service.sim.https.SimRequest;
 import com.idirtrack.stock_service.sim.https.SimUpdateRequest;
-
-import org.springframework.http.HttpStatus;
 
 import jakarta.validation.Valid;
 
@@ -104,16 +103,7 @@ public class SimController {
                     .message(e.getMessage()).messageType(MessageType.ERROR).status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build());
         }
-
     }
-
-    // @PutMapping("/{id}/status/")
-    // public ResponseEntity<BasicResponse> updateSimStatus(@PathVariable Long id,
-    // @RequestParam SimStatus status)
-    // throws BasicException {
-    // BasicResponse response = simService.updateSimStatus(id, status);
-    // return ResponseEntity.status(response.getStatus()).body(response);
-    // }
 
     @DeleteMapping("/{id}/")
     public ResponseEntity<BasicResponse> deleteSim(@PathVariable Long id) {
@@ -129,33 +119,9 @@ public class SimController {
         }
     }
 
-    // @GetMapping("/search")
-    // public ResponseEntity<BasicResponse> searchSims(@RequestParam(value =
-    // "query", required = false) String query,
-    // @RequestParam(value = "operatorType", required = false) String operatorType,
-    // @RequestParam(value = "status", required = false) String status,
-    // @RequestParam(value = "date", required = false) Date date,
-    // @RequestParam(value = "page", defaultValue = "1") int page,
-    // @RequestParam(value = "size", defaultValue = "10") int size) {
-    // BasicResponse response = simService.searchSims(query, operatorType, status,
-    // date, page, size);
-    // return ResponseEntity.status(response.getStatus()).body(response);
-    // }
+   
 
-    // @GetMapping("/search-by-date")
-    // public ResponseEntity<BasicResponse>
-    // searchSimsByDateRange(@RequestParam("startDate") Date startDate,
-    // @RequestParam("endDate") Date endDate) {
-    // BasicResponse response = simService.searchSimsByDateRange(startDate,
-    // endDate);
-    // return ResponseEntity.status(response.getStatus()).body(response);
-    // }
-
-    // @GetMapping("/count-non-installed-sims")
-    // public ResponseEntity<BasicResponse> countNonInstalledSimsApi() {
-    // BasicResponse response = simService.countNonInstalledSims();
-    // return ResponseEntity.status(response.getStatus()).body(response);
-    // }
+ 
 
     @GetMapping("/pending/")
     public ResponseEntity<BasicResponse> getNonInstalledSimsApi(@RequestParam(defaultValue = "1") int page,
@@ -172,14 +138,14 @@ public class SimController {
         }
     }
 
-    // // Search non-installed SIMs by phone number or CCID
-    @GetMapping("/pending/search/")
+    @GetMapping("/non-installed-sims/search/")
     public ResponseEntity<BasicResponse> searchNonInstalledSimsApi(
             @RequestParam(value = "query", required = false) String query,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         try {
-            BasicResponse response = simService.searchPendingSims(query, page, size);
+            BasicResponse response = simService.searchNonInstalledSims(query, page, size);
+
             return ResponseEntity.status(response.getStatus()).body(response);
 
         } catch (BasicException e) {
@@ -192,10 +158,33 @@ public class SimController {
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build());
         }
-
     }
 
-    // // Change the status of SIM to installed
+    @GetMapping("/search")
+    public ResponseEntity<BasicResponse> searchSIMsByPhoneAndCCID(@RequestParam(value = "term", required = true) String term,
+                                                                  @RequestParam(defaultValue = "1") int page,
+                                                                  @RequestParam(defaultValue = "5") int size) {
+        try {
+            if (term == null || term.trim().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(BasicResponse.builder()
+                        .content(null)
+                        .message("Search term cannot be empty")
+                        .messageType(MessageType.ERROR)
+                        .status(HttpStatus.BAD_REQUEST)
+                        .build());
+            }
+            BasicResponse response = simService.searchSIMsByPhoneAndCCID(term, page, size);
+            return ResponseEntity.status(response.getStatus()).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
+                    .content(null)
+                    .message(e.getMessage())
+                    .messageType(MessageType.ERROR)
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build());
+        }
+    }
+
     @PutMapping("/status/installed/{id}/")
     public ResponseEntity<BasicResponse> changeSimStatusToInstalledApi(@PathVariable Long id) {
         try {
@@ -212,5 +201,4 @@ public class SimController {
                     .build());
         }
     }
-
 }

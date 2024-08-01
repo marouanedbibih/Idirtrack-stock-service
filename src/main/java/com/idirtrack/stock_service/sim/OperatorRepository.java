@@ -1,14 +1,14 @@
 package com.idirtrack.stock_service.sim;
+import java.util.Date;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-import java.util.Date;
-
 @Repository
 public interface OperatorRepository extends JpaRepository<Operator, Long> {
     boolean existsByName(String name);
-    // Optional<SimType> findByType(String type);
-    // Optional<SimType> findByTypeAndCreatedAt(String type, Date createdAt);
+    Optional<Operator> findByName(String name);
+    Optional<Operator> findByNameAndCreatedAt(String name, Date createdAt);
+
 }
