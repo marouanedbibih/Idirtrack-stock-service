@@ -13,6 +13,6 @@ public class SimBoitierDTO {
     private Long simMicroserviceId;
     private String ccid;
     private String phone;
-    private String operator;
+    private String operatorName;
 
 }

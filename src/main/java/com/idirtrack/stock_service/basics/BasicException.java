@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 
-
 public class BasicException extends Exception{
   private BasicResponse response;
 

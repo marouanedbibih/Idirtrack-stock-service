@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.idirtrack.stock_service.basics.BasicException;
 import com.idirtrack.stock_service.basics.BasicResponse;
 
-import com.idirtrack.stock_service.basics.BasicValidation;
 import com.idirtrack.stock_service.basics.MessageType;
 import com.idirtrack.stock_service.device.https.DeviceRequest;
 import com.idirtrack.stock_service.device.https.DeviceUpdateRequest;

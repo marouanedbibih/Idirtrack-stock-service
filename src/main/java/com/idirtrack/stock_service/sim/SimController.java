@@ -1,6 +1,5 @@
 package com.idirtrack.stock_service.sim;
 
-
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,32 +118,33 @@ public class SimController {
         }
     }
 
-   
-
- 
-
+    /**
+     * GET PENDING SIMS
+     * 
+     * @param page
+     * @param size
+     * @return
+     */
     @GetMapping("/pending/")
-public ResponseEntity<BasicResponse> getNonInstalledSimsApi(
-        @RequestParam(defaultValue = "1") int page,
-        @RequestParam(defaultValue = "5") int size) {
-    try {
-        BasicResponse response = simService.getAllNonInstalledSims(page, size);
-        return ResponseEntity.status(response.getStatus()).body(response);
-    } catch (BasicException e) {
-        return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
-                .content(null)
-                .message(e.getMessage())
-                .messageType(MessageType.ERROR)
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .build());
+    public ResponseEntity<BasicResponse> getNonInstalledSimsApi(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        try {
+            BasicResponse response = simService.getAllNonInstalledSims(page, size);
+            return ResponseEntity.status(response.getStatus()).body(response);
+        } catch (BasicException e) {
+            return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
+                    .content(null)
+                    .message(e.getMessage())
+                    .messageType(MessageType.ERROR)
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build());
+        }
     }
-}
 
-    
-
-    @GetMapping("/non-installed-sims/search/")
+    @GetMapping("/pending/search/")
     public ResponseEntity<BasicResponse> searchNonInstalledSimsApi(
             @RequestParam(value = "query", required = false) String query,
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -167,9 +167,10 @@ public ResponseEntity<BasicResponse> getNonInstalledSimsApi(
     }
 
     @GetMapping("/search")
-    public ResponseEntity<BasicResponse> searchSIMsByPhoneAndCCID(@RequestParam(value = "term", required = true) String term,
-                                                                  @RequestParam(defaultValue = "1") int page,
-                                                                  @RequestParam(defaultValue = "5") int size) {
+    public ResponseEntity<BasicResponse> searchSIMsByPhoneAndCCID(
+            @RequestParam(value = "term", required = true) String term,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size) {
         try {
             if (term == null || term.trim().isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(BasicResponse.builder()
@@ -206,5 +207,26 @@ public ResponseEntity<BasicResponse> getNonInstalledSimsApi(
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build());
         }
+    }
+
+    /**
+     * CHANGE SIM STATUS 
+     */
+    @PutMapping("/status/")
+    public ResponseEntity<BasicResponse> changeSimStatusApi(@RequestParam Long id, @RequestParam String status) {
+        try {
+            BasicResponse response = simService.changeSimStatus(id, status);
+            return ResponseEntity.status(response.getStatus()).body(response);
+        } catch (BasicException e) {
+            return ResponseEntity.status(e.getResponse().getStatus()).body(e.getResponse());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BasicResponse.builder()
+                    .content(null)
+                    .message(e.getMessage())
+                    .messageType(MessageType.ERROR)
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build());
+        }
+
     }
 }

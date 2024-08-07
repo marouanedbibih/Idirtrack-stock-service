@@ -4,5 +4,6 @@ public enum DeviceStatus {
   INSTALLED,
   NON_INSTALLED,
   LOST,
-  DAMAGED
+  PENDING
 }
+
