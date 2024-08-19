@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @Builder
 @NoArgsConstructor
@@ -13,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 public class MetaData {
   private int currentPage;
-    private int totalPages;
-    private int size;
+  private int totalPages;
+  private int size;
+  private long totalElements;
 }
-

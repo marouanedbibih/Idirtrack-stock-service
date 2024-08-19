@@ -1,11 +1,14 @@
 package com.idirtrack.stock_service.basics;
+
 import org.springframework.http.HttpStatus;
 
+import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -18,4 +21,7 @@ public class BasicResponse {
     private String redirectUrl;
     private HttpStatus status;
     private MetaData metadata;
+
+    private BasicError error;
+    private List<BasicError> errors;
 }

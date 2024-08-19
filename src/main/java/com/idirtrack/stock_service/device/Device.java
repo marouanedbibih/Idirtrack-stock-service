@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.sql.Date;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.idirtrack.stock_service.deviceType.DeviceType;
 
 @Entity
 @Data

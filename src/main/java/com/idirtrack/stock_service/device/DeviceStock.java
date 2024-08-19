@@ -1,4 +1,5 @@
 package com.idirtrack.stock_service.device;
+import com.idirtrack.stock_service.deviceType.DeviceType;
 import com.idirtrack.stock_service.stock.Stock;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

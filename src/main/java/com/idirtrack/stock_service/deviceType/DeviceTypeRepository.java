@@ -1,6 +1,5 @@
-//interface jpa repository for devicetype
 
-package com.idirtrack.stock_service.device;
+package com.idirtrack.stock_service.deviceType;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -14,6 +13,7 @@ public interface DeviceTypeRepository  extends JpaRepository<DeviceType, Long>{
   Long findIdByName(String name);
   DeviceType findByName(String name);
   boolean existsById(Long id);
+  boolean existsByNameAndIdNot(String name, Long id);
 
   
 }
