@@ -1,5 +1,6 @@
 package com.idirtrack.stock_service.sim;
 
+import com.idirtrack.stock_service.operator.Operator;
 import com.idirtrack.stock_service.stock.Stock;
 
 import jakarta.persistence.Entity;

@@ -1,4 +1,4 @@
-package com.idirtrack.stock_service.sim;
+package com.idirtrack.stock_service.operator;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class OperatorDTO {
     private Long id;
     private String name;
+    private int totalSims;
 }

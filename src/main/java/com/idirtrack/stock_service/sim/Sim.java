@@ -2,6 +2,8 @@ package com.idirtrack.stock_service.sim;
 
 import java.sql.Date;
 
+import com.idirtrack.stock_service.operator.Operator;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

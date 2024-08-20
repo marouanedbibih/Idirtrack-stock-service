@@ -1,4 +1,4 @@
-package com.idirtrack.stock_service.sim.https;
+package com.idirtrack.stock_service.operator;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SimTypeRequest {
+public class OperatorRequest {
 
-    @NotEmpty(message = "Type must not be empty")
-    private String type;
+    @NotEmpty(message = "Operator must not be empty")
+    private String name;
 }

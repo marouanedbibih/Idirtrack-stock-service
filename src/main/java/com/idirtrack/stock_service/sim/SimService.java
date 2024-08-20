@@ -16,6 +16,8 @@ import com.idirtrack.stock_service.basics.BasicException;
 import com.idirtrack.stock_service.basics.BasicResponse;
 import com.idirtrack.stock_service.basics.MessageType;
 import com.idirtrack.stock_service.basics.MetaData;
+import com.idirtrack.stock_service.operator.Operator;
+import com.idirtrack.stock_service.operator.OperatorRepository;
 import com.idirtrack.stock_service.sim.https.SimRequest;
 import com.idirtrack.stock_service.sim.https.SimUpdateRequest;
 import com.idirtrack.stock_service.stock.Stock;
